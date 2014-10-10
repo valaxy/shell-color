@@ -1,8 +1,9 @@
 define(function (require, exports) {
 
-	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
-	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*)\[m/;
-	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*\[m)/g;
+
+	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*?)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
+	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/;
+	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g;
 
 	function getColor(code) {
 		switch (code) {
@@ -90,7 +91,7 @@ define(function (require, exports) {
 	ShellColor.prototype.convertToHtml = function (str) {
 		// 把有颜色和没有颜色的字符串分别处理
 		var strs = str.split(COLOR_REG_FOR_SPLIT);
-
+	
 		var finalStr = '';
 		for (var i = 0; i < strs.length; i++) {
 			var str = strs[i];
@@ -110,3 +111,4 @@ define(function (require, exports) {
 	return ShellColor;
 
 });
+
