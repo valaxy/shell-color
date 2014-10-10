@@ -17,8 +17,8 @@ seajs.use([
 		}
 	});
 
-	QUnit.test('removeColorInfo', function (assert) {
-		assert.equal(sc.removeColorInfo('mm[[15;23mabcdefg[mmm'), 'mm[abcdefgmm');
+	QUnit.test('removeMark', function (assert) {
+		assert.equal(sc.removeMark('mm[[15;23mabcdefg[mmm'), 'mm[abcdefgmm');
 	});
 
 

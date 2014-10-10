@@ -1,16 +1,5 @@
 define(function (require, exports) {
 
-	// linux shell color format:
-	//      [<backColor>;<fontColor>m<text>[m
-	//
-	// - <backColor> a number
-	// - <fontColor> a number
-	// - <text> string
-	//
-	// example:
-	// - `[1;29m I love U [m`
-
-
 	var COLOR_REG_MUL = /\[(\d+);(\d+)m(.*)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
 	var COLOR_REG = /\[(\d+);(\d+)m(.*)\[m/;
 	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m.*\[m)/g;
@@ -49,31 +38,56 @@ define(function (require, exports) {
 		return s;
 	}
 
-	var ShellColor = function () {
+
+	// create a new ShellColor instance.
+
+	/**
+	 * linux shell color format is: [`backColor`;`fontColor`m`text`[m <br/>
+	 * `backColor` is a number <br/>
+	 * `fontColor` is a number <br/>
+	 * `text` is a string <br/>
+	 * for example: [1;29m I love U [m` <br/>
+	 * terms: color mark,
+	 * @class ShellColor
+	 */
+	function ShellColor() {
 		// nothing
-	};
+	}
 
 
 	/**
-	 * eliminate the color info
-	 * @param str
-	 * @returns {XML|*|string|void}
+	 * eliminate the color mark in the string.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} returns the text without linux shell color mark
 	 */
-	ShellColor.prototype.removeColorInfo = function (str) {
+	ShellColor.prototype.removeMark = function (str) {
 		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
 			return text;
 		});
 	};
 
 
-	ShellColor.prototype.withColorMark = function (str) {
+	/**
+	 * convert color mark to html tag.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} a string with html tag inserted, tags are used for display color
+	 */
+	ShellColor.prototype.convertMarkToTag = function (str) {
 		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
 			return "<span style='color:" + getColor(Number(fontColor)) + "'>" + encodeStr(text) + "</span>"
 		});
 	};
 
 
-	ShellColor.prototype.toHtmlWithColorMark = function (str) {
+	/**
+	 * convert to html
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} a string has color tag and all the plan text are convert to html escape entity
+	 */
+	ShellColor.prototype.convertToHtml = function (str) {
 		// 把有颜色和没有颜色的字符串分别处理
 		var strs = str.split(COLOR_REG_FOR_SPLIT);
 
@@ -81,7 +95,7 @@ define(function (require, exports) {
 		for (var i = 0; i < strs.length; i++) {
 			var str = strs[i];
 			if (str.match(COLOR_REG)) { // 带有颜色信息
-				str = this.withColorMark(str);
+				str = this.convertMarkToTag(str);
 			} else { // 正常的文本
 				str = encodeStr(str);
 			}
