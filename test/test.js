@@ -22,4 +22,9 @@ seajs.use([
 	});
 
 
+	QUnit.test('convertToHtml', function (assert) {
+		assert.equal(sc.removeMark('[1;31maaa\nbbb[m'), 'aaa\nbbb');
+	});
+
+
 });

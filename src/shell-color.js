@@ -1,8 +1,8 @@
 define(function (require, exports) {
 
-	var COLOR_REG_MUL = /\[(\d+);(\d+)m(.*)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
-	var COLOR_REG = /\[(\d+);(\d+)m(.*)\[m/;
-	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m.*\[m)/g;
+	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
+	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*)\[m/;
+	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*\[m)/g;
 
 	function getColor(code) {
 		switch (code) {
