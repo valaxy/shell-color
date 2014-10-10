@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: E:/test/test.js</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":false,"default":{"outputSourceFiles":true}};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="ShellColor">
+            <span class="title">
+                <a href="ShellColor.html">ShellColor</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="ShellColor#convertMarkToTag"><a href="ShellColor.html##convertMarkToTag">#convertMarkToTag</a></li>
+            
+                <li data-name="ShellColor#convertToHtml"><a href="ShellColor.html##convertToHtml">#convertToHtml</a></li>
+            
+                <li data-name="ShellColor#removeMark"><a href="ShellColor.html##removeMark">#removeMark</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="test.js.html">Source: E:/test/test.js</h1>
+        
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>define(function (require, exports) {
+
+	var COLOR_REG_MUL = /\[(\d+);(\d+)m(.*)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
+	var COLOR_REG = /\[(\d+);(\d+)m(.*)\[m/;
+	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m.*\[m)/g;
+
+	function getColor(code) {
+		switch (code) {
+			case 29: // @todo why 29???/
+				return 'white';
+			case 30:
+				return 'black';
+			case 31:
+				return 'red';
+			case 32:
+				return 'green';
+			case 33:
+				return 'yellow';
+			case 34:
+				return 'blue';
+			case 35:
+				return '';
+			case 36:
+				return '';
+			case 37:
+				return 'white';
+			default:
+				return 'default';
+		}
+	}
+
+
+	function encodeStr(str) {
+		var s = '';
+		for (var i = 0; i &lt; str.length; i++) {
+			s += '&amp;#' + str.charCodeAt(i) + ';';
+		}
+		return s;
+	}
+
+
+	// create a new ShellColor instance.
+
+	/**
+	 * linux shell color format is: [`backColor`;`fontColor`m`text`[m &lt;br/>
+	 * `backColor` is a number &lt;br/>
+	 * `fontColor` is a number &lt;br/>
+	 * `text` is a string &lt;br/>
+	 * for example: [1;29m I love U [m` &lt;br/>
+	 * terms: color mark,
+	 * @class ShellColor
+	 */
+	function ShellColor() {
+		// nothing
+	}
+
+
+	/**
+	 * eliminate the color mark in the string.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} returns the text without linux shell color mark
+	 */
+	ShellColor.prototype.removeMark = function (str) {
+		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
+			return text;
+		});
+	};
+
+
+	/**
+	 * convert color mark to html tag.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} a string with html tag inserted, tags are used for display color
+	 */
+	ShellColor.prototype.convertMarkToTag = function (str) {
+		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
+			return "&lt;span style='color:" + getColor(Number(fontColor)) + "'>" + encodeStr(text) + "&lt;/span>"
+		});
+	};
+
+
+	/**
+	 * convert to html
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with linux shell color mark
+	 * @returns {string} a string has color tag and all the plan text are convert to html escape entity
+	 */
+	ShellColor.prototype.convertToHtml = function (str) {
+		// 把有颜色和没有颜色的字符串分别处理
+		var strs = str.split(COLOR_REG_FOR_SPLIT);
+
+		var finalStr = '';
+		for (var i = 0; i &lt; strs.length; i++) {
+			var str = strs[i];
+			if (str.match(COLOR_REG)) { // 带有颜色信息
+				str = this.convertMarkToTag(str);
+			} else { // 正常的文本
+				str = encodeStr(str);
+			}
+			finalStr += str;
+		}
+
+		// &amp;#10; 是换行符
+		finalStr = finalStr.replace(/&amp;#10;/g, '&lt;br/>');
+		return finalStr;
+	};
+
+	return ShellColor;
+
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Fri Oct 10 2014 18:47:05 GMT+0800 (中国标准时间)
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>
