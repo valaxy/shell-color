@@ -1,42 +1,40 @@
-define(function (require, exports) {
-
-
-	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*?)\[m/g; // 1:背景颜色 2:字体颜色 3正文文本
-	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/;
-	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g;
+define(function () {
+	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*?)\[m/g   // 1:背景颜色 2:字体颜色 3正文文本
+	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/
+	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g
 
 	function getColor(code) {
 		switch (code) {
 			case 29: // @todo why 29???/
-				return 'white';
+				return 'white'
 			case 30:
-				return 'black';
+				return 'black'
 			case 31:
-				return 'red';
+				return 'red'
 			case 32:
-				return 'green';
+				return 'green'
 			case 33:
-				return 'yellow';
+				return 'yellow'
 			case 34:
-				return 'blue';
+				return 'blue'
 			case 35:
-				return '';
+				return ''
 			case 36:
-				return '';
+				return ''
 			case 37:
-				return 'white';
+				return 'white'
 			default:
-				return 'default';
+				return 'default'
 		}
 	}
 
 
 	function encodeStr(str) {
-		var s = '';
+		var s = ''
 		for (var i = 0; i < str.length; i++) {
-			s += '&#' + str.charCodeAt(i) + ';';
+			s += '&#' + str.charCodeAt(i) + ';'
 		}
-		return s;
+		return s
 	}
 
 
@@ -64,9 +62,9 @@ define(function (require, exports) {
 	 */
 	ShellColor.prototype.removeMark = function (str) {
 		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
-			return text;
-		});
-	};
+			return text
+		})
+	}
 
 
 	/**
@@ -78,8 +76,8 @@ define(function (require, exports) {
 	ShellColor.prototype.convertMarkToTag = function (str) {
 		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
 			return "<span style='color:" + getColor(Number(fontColor)) + "'>" + encodeStr(text) + "</span>"
-		});
-	};
+		})
+	}
 
 
 	/**
@@ -90,25 +88,23 @@ define(function (require, exports) {
 	 */
 	ShellColor.prototype.convertToHtml = function (str) {
 		// 把有颜色和没有颜色的字符串分别处理
-		var strs = str.split(COLOR_REG_FOR_SPLIT);
-	
-		var finalStr = '';
+		var strs = str.split(COLOR_REG_FOR_SPLIT)
+
+		var finalStr = ''
 		for (var i = 0; i < strs.length; i++) {
-			var str = strs[i];
+			var str = strs[i]
 			if (str.match(COLOR_REG)) { // 带有颜色信息
-				str = this.convertMarkToTag(str);
+				str = this.convertMarkToTag(str)
 			} else { // 正常的文本
-				str = encodeStr(str);
+				str = encodeStr(str)
 			}
-			finalStr += str;
+			finalStr += str
 		}
 
 		// &#10; 是换行符
-		finalStr = finalStr.replace(/&#10;/g, '<br/>');
-		return finalStr;
-	};
+		finalStr = finalStr.replace(/&#10;/g, '<br/>')
+		return finalStr
+	}
 
-	return ShellColor;
-
-});
-
+	return ShellColor
+})

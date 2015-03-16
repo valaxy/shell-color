@@ -1,4 +1,4 @@
 shell-color
 ===========
 
-linux shell color foramt , cmd module
+linux shell color format , cmd module
