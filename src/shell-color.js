@@ -114,7 +114,7 @@ define(function () {
 		}
 
 		// &#10; 是换行符
-		html = html.replace(/&#10;/g, '<br/>')
+		//html = html.replace(/&#10;/g, '<br/>')
 		return html
 	}
 
