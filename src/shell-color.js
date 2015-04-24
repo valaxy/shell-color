@@ -1,7 +1,7 @@
 define(function () {
 	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*?)\[m/g   // 1:背景颜色 2:字体颜色 3正文文本
 	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/
-	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g
+	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g // when you add groups, the groups will also show in split array
 
 	function getColor(code) {
 		switch (code) {
@@ -84,26 +84,38 @@ define(function () {
 	 * convert to html
 	 * @memberof! ShellColor
 	 * @param {string} str - a string with linux shell color mark
+	 * @param {function} callback -
+	 *      - originalText
+	 *      - html
+	 *      - return true to break
 	 * @returns {string} a string has color tag and all the plan text are convert to html escape entity
 	 */
-	ShellColor.prototype.convertToHtml = function (str) {
+	ShellColor.prototype.convertToHtml = function (str, callback) {
 		// 把有颜色和没有颜色的字符串分别处理
-		var strs = str.split(COLOR_REG_FOR_SPLIT)
+		var strs = str.split(COLOR_REG_FOR_SPLIT) // may has empty string
 
-		var finalStr = ''
+		var html = ''
 		for (var i = 0; i < strs.length; i++) {
-			var str = strs[i]
+			if (strs[i] == '') {
+				continue;
+			}
+			var str = strs[i],
+				text = str
 			if (str.match(COLOR_REG)) { // 带有颜色信息
 				str = this.convertMarkToTag(str)
 			} else { // 正常的文本
 				str = encodeStr(str)
 			}
-			finalStr += str
+			html += str
+
+			if (callback ? callback(text) : undefined) {
+				break
+			}
 		}
 
 		// &#10; 是换行符
-		finalStr = finalStr.replace(/&#10;/g, '<br/>')
-		return finalStr
+		html = html.replace(/&#10;/g, '<br/>')
+		return html
 	}
 
 	return ShellColor
