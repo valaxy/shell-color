@@ -3,7 +3,11 @@ define(function () {
 	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/
 	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g // when you add groups, the groups will also show in split array
 
-	function getColor(code) {
+	function getColor(code, map) {
+		map = map || {}
+		if (code in map) {
+			return map[code]
+		}
 		switch (code) {
 			case 29: // @todo why 29???/
 				return 'white'
@@ -49,8 +53,10 @@ define(function () {
 	 * terms: color mark,
 	 * @class ShellColor
 	 */
-	function ShellColor() {
-		// nothing
+	function ShellColor(options) {
+		options = options || {}
+		options.colors = options.colors || {}
+		this._options = options
 	}
 
 
@@ -74,9 +80,9 @@ define(function () {
 	 * @returns {string} a string with html tag inserted, tags are used for display color
 	 */
 	ShellColor.prototype.convertMarkToTag = function (str) {
-		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
-			return "<span style='color:" + getColor(Number(fontColor)) + "'>" + encodeStr(text) + "</span>"
-		})
+		return str.replace(COLOR_REG_MUL, (function (match, backColor, fontColor, text) {
+			return "<span style='color:" + getColor(Number(fontColor), this._options.colors) + "'>" + encodeStr(text) + "</span>"
+		}).bind(this))
 	}
 
 
@@ -99,8 +105,8 @@ define(function () {
 			if (strs[i] == '') {
 				continue;
 			}
-			var str = strs[i],
-				text = str
+			var str  = strs[i],
+			    text = str
 			if (str.match(COLOR_REG)) { // 带有颜色信息
 				str = this.convertMarkToTag(str)
 			} else { // 正常的文本

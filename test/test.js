@@ -20,7 +20,6 @@ define(function (require) {
 		assert.equal($dom.text(), 'abcdefghijklmnopqrst')
 	})
 
-
 	QUnit.test('convertToHtml(): callback', function (assert) {
 		var text = '[15;23mabcdefg[mhijklmn[15;24mopqrst[m'
 		var blockCount = 0
@@ -33,5 +32,20 @@ define(function (require) {
 		})
 		assert.equal($('<div>').html(html).text(), 'abcdefghijklmn')
 		assert.equal(totalText, '[15;23mabcdefg[mhijklmn')
+	})
+
+	QUnit.test('convertToHtml(): config color', function (assert) {
+		var text = '[15;31m   [m'
+		var html = $('<div>').html(sc.convertToHtml(text)).html()
+		assert.equal(html, '<span style="color:red">   </span>')
+
+		var sc2 = new ShellColor({
+			colors: {
+				31: 'blue',
+				32: 'haha'
+			}
+		})
+		html = $('<div>').html(sc2.convertToHtml(text)).html()
+		assert.equal(html, '<span style="color:blue">   </span>')
 	})
 })
