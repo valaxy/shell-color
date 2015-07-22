@@ -50,8 +50,10 @@ define(function () {
 	 * `fontColor` is a number <br/>
 	 * `text` is a string <br/>
 	 * for example: [1;29m I love U [m` <br/>
-	 * terms: color mark,
+	 * terms: color mark
 	 * @class ShellColor
+	 * @paras options
+	 *      colors: a color map
 	 */
 	function ShellColor(options) {
 		options = options || {}
