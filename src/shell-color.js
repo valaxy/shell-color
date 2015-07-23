@@ -1,7 +1,7 @@
 define(function () {
-	var COLOR_REG_MUL = /\[(\d+);(\d+)m([\s\S]*?)\[m/g   // 1:背景颜色 2:字体颜色 3正文文本
-	var COLOR_REG = /\[(\d+);(\d+)m([\s\S]*?)\[m/
-	var COLOR_REG_FOR_SPLIT = /(\[\d+;\d+m[\s\S]*?\[m)/g // when you add groups, the groups will also show in split array
+	var COLOR_REG_MUL = /\u001b\[(\d+);(\d+)m([\s\S]*?)\u001b\[m/g   // 1:background color  2:font color  3:text
+	var COLOR_REG = /\u001b\[(\d+);(\d+)m([\s\S]*?)\u001b\[m/
+	var COLOR_REG_FOR_SPLIT = /(\u001b\[\d+;\d+m[\s\S]*?\u001b\[m)/g // when you add groups, the groups will also show in split array, so add the total string
 
 	function getColor(code, map) {
 		map = map || {}

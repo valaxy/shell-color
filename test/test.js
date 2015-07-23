@@ -10,18 +10,18 @@ define(function (require) {
 	})
 
 	QUnit.test('removeMark()', function (assert) {
-		assert.equal(sc.removeMark('mm[[15;23mabcdefg[mmm'), 'mm[abcdefgmm')
-		assert.equal(sc.removeMark('[1;31maaa\nbbb[m'), 'aaa\nbbb')
+		assert.equal(sc.removeMark('mm[\u001b[15;23mabcdefg\u001b[mmm'), 'mm[abcdefgmm')
+		assert.equal(sc.removeMark('\u001b[1;31maaa\nbbb\u001b[m'), 'aaa\nbbb')
 	})
 
 	QUnit.test('convertToHtml()', function (assert) {
-		var text = '[15;23mabcdefg[mhijklmn[15;24mopqrst[m'
+		var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
 		var $dom = $('<div>').html(sc.convertToHtml(text))
 		assert.equal($dom.text(), 'abcdefghijklmnopqrst')
 	})
 
 	QUnit.test('convertToHtml(): callback', function (assert) {
-		var text = '[15;23mabcdefg[mhijklmn[15;24mopqrst[m'
+		var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
 		var blockCount = 0
 		var totalText = ''
 		var html = sc.convertToHtml(text, function (text) {
@@ -31,11 +31,11 @@ define(function (require) {
 			}
 		})
 		assert.equal($('<div>').html(html).text(), 'abcdefghijklmn')
-		assert.equal(totalText, '[15;23mabcdefg[mhijklmn')
+		assert.equal(totalText, '\u001b[15;23mabcdefg\u001b[mhijklmn')
 	})
 
 	QUnit.test('convertToHtml(): config color', function (assert) {
-		var text = '[15;31m   [m'
+		var text = '\u001b[15;31m   \u001b[m'
 		var html = $('<div>').html(sc.convertToHtml(text)).html()
 		assert.equal(html, '<span style="color:red">   </span>')
 

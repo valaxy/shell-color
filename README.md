@@ -23,5 +23,8 @@ var div = document.createElement('div')
 div.innerHTML = html
 console.log(div.innerHTML)
 
+# Reference
+- https://en.wikipedia.org/wiki/ANSI_escape_code
+- http://www.2cto.com/os/201112/114400.html
 
 ```
