@@ -1,130 +1,114 @@
-define(function () {
-	var COLOR_REG_MUL = /\u001b\[(\d+);(\d+)m([\s\S]*?)\u001b\[m/g   // 1:background color  2:font color  3:text
-	var COLOR_REG = /\u001b\[(\d+);(\d+)m([\s\S]*?)\u001b\[m/
-	var COLOR_REG_FOR_SPLIT = /(\u001b\[\d+;\d+m[\s\S]*?\u001b\[m)/g // when you add groups, the groups will also show in split array, so add the total string
+define(function (require) {
+	var help = require('./sgr-help')
 
-	function getColor(code, map) {
-		map = map || {}
-		if (code in map) {
-			return map[code]
-		}
-		switch (code) {
-			case 29: // @todo why 29???/
-				return 'white'
-			case 30:
-				return 'black'
-			case 31:
-				return 'red'
-			case 32:
-				return 'green'
-			case 33:
-				return 'yellow'
-			case 34:
-				return 'blue'
-			case 35:
-				return ''
-			case 36:
-				return ''
-			case 37:
-				return 'white'
-			default:
-				return 'default'
-		}
-	}
+	// tip: when you add groups, the groups will also show in split array
+	var ESCAPE_CODE_REG = /\x1b\[(?:(\d+)(?:;(\d+))*)?m/
+	var ESCAPE_CODE_REG_MUL = /\x1b\[(?:\d+(?:;\d+)*)?m/g
+	var ESCAPE_CODE_REG_FOR_SPLIT2 = /(\x1b\[(?:\d+(?:;\d+)*)?m)/g
 
-
-	function encodeStr(str) {
-		var s = ''
-		for (var i = 0; i < str.length; i++) {
-			s += '&#' + str.charCodeAt(i) + ';'
-		}
-		return s
-	}
-
-
-	// create a new ShellColor instance.
+	// color
+	var DEFAULT_FOREGROUND_COLOR = 'white'
+	var DEFAULT_BACKGROUND_COLOR = 'black'
 
 	/**
-	 * linux shell color format is: [`backColor`;`fontColor`m`text`[m <br/>
-	 * `backColor` is a number <br/>
-	 * `fontColor` is a number <br/>
-	 * `text` is a string <br/>
-	 * for example: [1;29m I love U [m` <br/>
-	 * terms: color mark
+	 * Create a new ShellColor instance
 	 * @class ShellColor
 	 * @paras options
-	 *      colors: a color map
+	 *      colorMap: a color map
 	 */
-	function ShellColor(options) {
+	var ShellColor = function (options) {
 		options = options || {}
-		options.colors = options.colors || {}
-		this._options = options
+		this._colorMap = options.colorMap || {}
+		//this._defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
+		//this._defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
+		this.reset()
+	}
+
+
+	var consumeCodes = function (sgr, escapeMatch) {
+		if (escapeMatch.length == 3 && escapeMatch[1] == undefined && escapeMatch[2] == undefined) {
+			return help.consumeSGR(0, sgr) // default
+		}
+
+		// escapeMatch[0] == total string
+		for (var i = 1; i < escapeMatch.length; i++) {
+			var code = Number(escapeMatch[i])
+			help.consumeSGR(code, sgr)
+		}
 	}
 
 
 	/**
-	 * eliminate the color mark in the string.
-	 * @memberof! ShellColor
-	 * @param {string} str - a string with linux shell color mark
-	 * @returns {string} returns the text without linux shell color mark
+	 * Convert string which has style info to html tags.
+	 * @param str - a string which has style info about styles
+	 * @returns {Array} html tags include text, tag is used for hold styles
 	 */
-	ShellColor.prototype.removeMark = function (str) {
-		return str.replace(COLOR_REG_MUL, function (match, backColor, fontColor, text) {
-			return text
-		})
-	}
+	ShellColor.prototype.convertToHTMLTags = function (str) {
+		// distinguish text and ansi escape code
+		var blocks = str.split(ESCAPE_CODE_REG_FOR_SPLIT2)
 
+		var tags = []
+		for (var i = 0; i < blocks.length; i++) {
+			var s = blocks[i]
 
-	/**
-	 * convert color mark to html tag.
-	 * @memberof! ShellColor
-	 * @param {string} str - a string with linux shell color mark
-	 * @returns {string} a string with html tag inserted, tags are used for display color
-	 */
-	ShellColor.prototype.convertMarkToTag = function (str) {
-		return str.replace(COLOR_REG_MUL, (function (match, backColor, fontColor, text) {
-			return "<span style='color:" + getColor(Number(fontColor), this._options.colors) + "'>" + encodeStr(text) + "</span>"
-		}).bind(this))
-	}
-
-
-	/**
-	 * convert to html
-	 * @memberof! ShellColor
-	 * @param {string} str - a string with linux shell color mark
-	 * @param {function} callback -
-	 *      - originalText
-	 *      - html
-	 *      - return true to break
-	 * @returns {string} a string has color tag and all the plan text are convert to html escape entity
-	 */
-	ShellColor.prototype.convertToHtml = function (str, callback) {
-		// 把有颜色和没有颜色的字符串分别处理
-		var strs = str.split(COLOR_REG_FOR_SPLIT) // may has empty string
-
-		var html = ''
-		for (var i = 0; i < strs.length; i++) {
-			if (strs[i] == '') {
-				continue;
-			}
-			var str  = strs[i],
-			    text = str
-			if (str.match(COLOR_REG)) { // 带有颜色信息
-				str = this.convertMarkToTag(str)
-			} else { // 正常的文本
-				str = encodeStr(str)
-			}
-			html += str
-
-			if (callback ? callback(text) : undefined) {
-				break
+			var escapeMatch = s.match(ESCAPE_CODE_REG)
+			if (escapeMatch) { // ansi escape code
+				consumeCodes(this._sgr, escapeMatch)
+			} else {           // normal text
+				var span = help.createTagBySGR(this._sgr, {
+					colorMap: this._colorMap
+				})
+				span.innerText = s
+				tags.push(span)
 			}
 		}
 
-		// &#10; 是换行符
-		//html = html.replace(/&#10;/g, '<br/>')
+		return tags
+	}
+
+
+	/**
+	 * Convert string which has style info to html.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string which has style info about styles
+	 * @returns {string} converted HTML
+	 */
+	ShellColor.prototype.convertToHTML = function (str) {
+		var tags = this.convertToHTMLTags(str)
+		var html = ''
+		tags.forEach(function (tag) {
+			html += tag.outerHTML
+		})
 		return html
+	}
+
+
+	/**
+	 * Eliminate the ansi escape code in the string.
+	 * @memberof! ShellColor
+	 * @param {string} str - a string with ansi escape code
+	 * @returns {string} returns the text without ansi escape code
+	 */
+	ShellColor.prototype.strip = function (str) {
+		return str.replace(ESCAPE_CODE_REG_MUL, '')
+	}
+
+
+	/**
+	 * Reset SGR parameters
+	 */
+	ShellColor.prototype.reset = function () {
+		this._sgr = help.getDefaultSGR()
 	}
 
 	return ShellColor
 })
+
+
+//var encodeStr = function (str) {
+//	var s = ''
+//	for (var i = 0; i < str.length; i++) {
+//		s += '&#' + str.charCodeAt(i) + ';'
+//	}
+//	return s
+//}

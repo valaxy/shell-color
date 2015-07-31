@@ -13,10 +13,8 @@ html
         script.
             requirejs.config({
                 baseUrl: '../',
-                paths: {
+                paths  : {
                     jquery: 'bower_components/jquery/dist/jquery'
                 }
             })
-            require(['test/test'], function () {
-                // do nothing
-            })
+            require(['test/test'])

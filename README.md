@@ -1,30 +1,41 @@
 shell-color
 ===========
 
-Javascript to parse linux shell with color info, amd/cmd module
+Javascript to parse linux shell with color info, for AMD/CMD package
 
+![style](doc/style.png)
 
-# Introduction
+# Usage
 ```javascript
-var text = '[15;23mabcdefg[mhijklmn[15;24mopqrst[m'
+var text = '\x1b[30m black \x1b[m\x1b[31m red'
 
-
-// config
+// instance
 var ShellColor = require('shell-color')
 var sc = new ShellColor({
-    '29': 'white',
-    '30': 'black'
+	// this is optional	
+	colorMap: { 
+		white: '#cccccc',
+    	black: '#333333'	
+	}
 })
 
+// convertToHTMLTags
+var tags = sc.convertToHTMLTags(text)
+tags.forEach(function (tag) {
+	document.body.appendChild(tag)
+})
 
 // convertToHTML
-var html = sc.convertToHtml(text)
+var html = sc.convertToHTML(text)
 var div = document.createElement('div')
 div.innerHTML = html
-console.log(div.innerHTML)
+document.body.appendChild(div)
+
+// strip
+var str = sc.strip(text)
+console.log(str) // ' black  red'
+```
 
 # Reference
 - https://en.wikipedia.org/wiki/ANSI_escape_code
 - http://www.2cto.com/os/201112/114400.html
-
-```
