@@ -1,5 +1,5 @@
 define(function (require) {
-	var help = require('./sgr-help')
+	var sgrHelp = require('./sgr-help')
 
 	// tip: when you add groups, the groups will also show in split array
 	var ESCAPE_CODE_REG = /\x1b\[(?:(\d+)(?:;(\d+))*)?m/
@@ -18,14 +18,15 @@ define(function (require) {
 	 */
 	var ShellColor = function (options) {
 		options = options || {}
-		this._colorMap = options.colorMap || {}
-		//this._defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
-		//this._defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
+		options.colorMap = options.colorMap || {}
+		options.defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
+		options.defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
+		this._help = sgrHelp(options)
 		this.reset()
 	}
 
 
-	var consumeCodes = function (sgr, escapeMatch) {
+	var consumeCodes = function (help, sgr, escapeMatch) {
 		if (escapeMatch.length == 3 && escapeMatch[1] == undefined && escapeMatch[2] == undefined) {
 			return help.consumeSGR(0, sgr) // default
 		}
@@ -53,11 +54,9 @@ define(function (require) {
 
 			var escapeMatch = s.match(ESCAPE_CODE_REG)
 			if (escapeMatch) { // ansi escape code
-				consumeCodes(this._sgr, escapeMatch)
+				consumeCodes(this._help, this._sgr, escapeMatch)
 			} else {           // normal text
-				var span = help.createTagBySGR(this._sgr, {
-					colorMap: this._colorMap
-				})
+				var span = this._help.createTagBySGR(this._sgr)
 				span.innerText = s
 				tags.push(span)
 			}
@@ -98,7 +97,7 @@ define(function (require) {
 	 * Reset SGR parameters
 	 */
 	ShellColor.prototype.reset = function () {
-		this._sgr = help.getDefaultSGR()
+		this._sgr = this._help.getDefaultSGR()
 	}
 
 	return ShellColor

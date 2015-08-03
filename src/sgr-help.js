@@ -1,7 +1,4 @@
 define(function () {
-	var DEFAULT_FOREGROUND_COLOR = 'white'
-	var DEFAULT_BACKGROUND_COLOR = 'black'
-
 	var getSGRColor = function (code) {
 		var n = code % 10
 		switch (n) {
@@ -26,12 +23,39 @@ define(function () {
 		}
 	}
 
+	var getCssColor = function (color, colorMap) {
+		if (color in colorMap) {
+			return colorMap[color]
+		}
+
+		switch (color) {
+			case 'black':
+				return '#000000'
+			case 'red':
+				return '#FF4136'
+			case 'green':
+				return '#2ECC40'
+			case 'yellow':
+				return '#FFDC00'
+			case 'blue':
+				return '#0074D9'
+			case 'magenta':
+				return '#85144B'
+			case 'cyan':
+				return '#001F3F'
+			case 'white':
+				return '#FFFFFF'
+			default:
+				throw color + 'is invalid'
+		}
+	}
+
 
 	var consumeSGR = function (code, sgr) {
 		switch (code) {
 			case 0:
-				sgr.color = DEFAULT_FOREGROUND_COLOR
-				sgr.background = DEFAULT_BACKGROUND_COLOR
+				sgr.color = this._options.defaultForegroundColor
+				sgr.background = this._options.defaultBackgroundColor
 				sgr.bold = false
 				sgr.italic = false
 				sgr.underline = false
@@ -73,7 +97,7 @@ define(function () {
 				sgr.color = getSGRColor(code)
 				break
 			case 39:
-				sgr.color = DEFAULT_FOREGROUND_COLOR
+				sgr.color = this._options.defaultForegroundColor
 				break
 			case 40:
 			case 41:
@@ -86,7 +110,7 @@ define(function () {
 				sgr.background = getSGRColor(code)
 				break
 			case 49:
-				sgr.background = DEFAULT_BACKGROUND_COLOR
+				sgr.background = this._options.defaultBackgroundColor
 				break
 			case 53:
 				sgr.overline = true
@@ -100,44 +124,16 @@ define(function () {
 
 	var getDefaultSGR = function () {
 		var sgr = {}
-		consumeSGR(0, sgr)
+		this.consumeSGR(0, sgr)
 		return sgr
 	}
 
 
-	var getColor = function (color, colorMap) {
-		if (color in colorMap) {
-			return colorMap[color]
-		}
-
-		switch (color) {
-			case 'black':
-				return '#000000'
-			case 'red':
-				return '#FF4136'
-			case 'green':
-				return '#2ECC40'
-			case 'yellow':
-				return '#FFDC00'
-			case 'blue':
-				return '#0074D9'
-			case 'magenta':
-				return '#85144B'
-			case 'cyan':
-				return '#001F3F'
-			case 'white':
-				return '#FFFFFF'
-			default:
-				throw color + 'is invalid'
-		}
-	}
-
-
-	var createTagBySGR = function (sgr, options) {
-		var colorMap = options.colorMap
+	var createTagBySGR = function (sgr) {
+		var colorMap = this._options.colorMap
 		var span = document.createElement('span')
-		span.style.color = getColor(sgr.color, colorMap)
-		span.style.background = getColor(sgr.background, colorMap)
+		span.style.color = getCssColor(sgr.color, colorMap)
+		span.style.background = getCssColor(sgr.background, colorMap)
 		span.style.fontWeight = sgr.bold ? 'weight' : 'normal'
 		span.style.fontStyle = sgr.italic ? 'italic' : 'normal'
 		span.style.textDecoration = sgr.underline ? 'underline' : ''
@@ -146,9 +142,12 @@ define(function () {
 		return span
 	}
 
-	return {
-		getDefaultSGR : getDefaultSGR,
-		consumeSGR    : consumeSGR,
-		createTagBySGR: createTagBySGR
+	return function (options) {
+		return {
+			_options      : options,
+			getDefaultSGR : getDefaultSGR,
+			consumeSGR    : consumeSGR,
+			createTagBySGR: createTagBySGR
+		}
 	}
 })

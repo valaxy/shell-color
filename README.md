@@ -11,12 +11,13 @@ var text = '\x1b[30m black \x1b[m\x1b[31m red'
 
 // instance
 var ShellColor = require('shell-color')
-var sc = new ShellColor({
-	// this is optional	
-	colorMap: { 
+var sc = new ShellColor({	
+	colorMap: {                       // optional
 		white: '#cccccc',
     	black: '#333333'	
-	}
+	},
+	defaultBackgroundColor: 'white',  // optional
+	defaultForegroundColor: 'black'   // optional
 })
 
 // convertToHTMLTags
