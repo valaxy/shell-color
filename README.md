@@ -35,6 +35,9 @@ document.body.appendChild(div)
 // strip
 var str = sc.strip(text)
 console.log(str) // ' black  red'
+
+// reset
+sc.reset()
 ```
 
 # Reference
