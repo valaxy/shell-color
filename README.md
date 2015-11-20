@@ -1,4 +1,4 @@
-> API of 1.0.0-dev may not stable
+> 1.0.0-dev is under development, the document is deprecated
 
 shell-color
 ===========

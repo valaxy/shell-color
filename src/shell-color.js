@@ -19,10 +19,10 @@ var DEFAULT_BACKGROUND_COLOR = 'black'
  * @paras options
  *      colorMap:           a color map
  *      lineFeedMode:      'brTag'(default) | 'blockTag'
- *      textBlockTag:       default is 'p', useful only if lineFeedTransform == 'blockTag'
  *      textInlineTag:      default is 'span'
  * @Event:
- *
+ *      snippet: about tag
+ *      line:    only on blockTag mode
  */
 var ShellColor = function (options) {
 	options = options || {}
@@ -74,9 +74,8 @@ Object.assign(ShellColor.prototype, {
 	},
 
 	/**
-	 * Convert string which has style info to html tags.
+	 * Write string to stream and output a series of HTML tag from event
 	 * @param text - a string which has style info about styles
-	 * @returns {Array} html tags include text, tag is used for hold styles
 	 */
 	write: function (text) {
 		// distinguish text and ansi escape code
@@ -116,7 +115,32 @@ Object.assign(ShellColor, {
 	 */
 	strip: function (str) {
 		return str.replace(ESCAPE_CODE_REG_MUL, '')
-	}
+	},
+
+	/**
+	 * Convert string which has style info to html tags.
+	 * @param str - a string which has style info about styles
+	 * @returns {Array} html tags include text, tag is used for hold styles
+	 */
+	convertToHTMLTags: function (str) {
+		// distinguish text and ansi escape code
+		var blocks = str.split(ESCAPE_CODE_REG_FOR_SPLIT2)
+		this._lastLine = document.createElement(this._options.textBlockTag)
+
+		var tags = []
+		for (var i = 0; i < blocks.length; i++) {
+			var s = blocks[i]
+
+			var escapeMatch = s.match(ESCAPE_CODE_REG)
+			if (escapeMatch) { // ansi escape code
+				consumeCodes(this._help, this._sgr, escapeMatch)
+			} else {           // normal text
+				tags.push.apply(tags, this._transformText(s))
+			}
+		}
+
+		return tags
+	},
 })
 
 module.exports = ShellColor
@@ -137,31 +161,7 @@ module.exports = ShellColor
 //	return s
 //}
 
-//
-///**
-// * Convert string which has style info to html tags.
-// * @param str - a string which has style info about styles
-// * @returns {Array} html tags include text, tag is used for hold styles
-// */
-//convertToHTMLTags: function (str) {
-//	// distinguish text and ansi escape code
-//	var blocks = str.split(ESCAPE_CODE_REG_FOR_SPLIT2)
-//	this._lastLine = document.createElement(this._options.textBlockTag)
-//
-//	var tags = []
-//	for (var i = 0; i < blocks.length; i++) {
-//		var s = blocks[i]
-//
-//		var escapeMatch = s.match(ESCAPE_CODE_REG)
-//		if (escapeMatch) { // ansi escape code
-//			consumeCodes(this._help, this._sgr, escapeMatch)
-//		} else {           // normal text
-//			tags.push.apply(tags, this._transformText(s))
-//		}
-//	}
-//
-//	return tags
-//},
+
 //
 ///**
 // * Convert string which has style info to html.

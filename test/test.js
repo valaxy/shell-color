@@ -17,16 +17,23 @@ define(function (require) {
 	}
 
 	var collectBlockPorcessor = function (text, sc, html) {
-		sc = sc ? sc : new ShellColor({
-			lineFeedMode: 'blockTag'
-		})
 		html = html ? html : []
+		var bind = function () {
+			sc.on('snippet', function (tag) {
+				html.push(tag.innerHTML)
+			}).on('line', function () {
+				html.push('\n')
+			})
+		}
+		if (sc) {
+			bind()
+			sc.write(text)
+		} else {
+			sc = new ShellColor({lineFeedMode: 'blockTag'})
+			bind()
+			sc.reset().write(text)
+		}
 
-		sc.on('snippet', function (tag) {
-			html.push(tag.innerHTML)
-		}).on('line', function () {
-			html.push('\n')
-		}).reset().write(text)
 		return html
 	}
 
@@ -46,24 +53,34 @@ define(function (require) {
 		assert.deepEqual(collectBlockPorcessor(''), ['\n'])
 		assert.deepEqual(collectBlockPorcessor('  '), ['\n', '  '])
 		assert.deepEqual(collectBlockPorcessor('\n'), ['\n', '\n'])
-		//assert.deepEqual(collectBlockPorcessor('\n123\n456\n\n789\n'), ['\n', '123', '\n', '456', '\n', '\n', '789', '\n'])
+		assert.deepEqual(collectBlockPorcessor('\n\n'), ['\n', '\n', '\n'])
+		assert.deepEqual(collectBlockPorcessor('\n123\n'), ['\n', '\n', '123', '\n'])
+		assert.deepEqual(collectBlockPorcessor('\n123\n456\n\n789\n'), ['\n', '\n', '123', '\n', '456', '\n', '\n', '789', '\n'])
+
+		var sc = new ShellColor({lineFeedMode: 'blockTag'})
+		sc.reset()
+		assert.deepEqual(collectBlockPorcessor('a', sc), ['a'])
+		assert.deepEqual(collectBlockPorcessor('b\nc', sc), ['b', '\n', 'c'])
+		assert.deepEqual(collectBlockPorcessor('\nd\n', sc), ['\n', 'd', '\n'])
+		assert.deepEqual(collectBlockPorcessor('\ne\n', sc), ['\n', 'e', '\n'])
+		assert.deepEqual(collectBlockPorcessor('fg', sc), ['fg'])
 	})
 
-	//QUnit.test('strip()', function (assert) {
-	//	assert.equal(sc.strip('abc'), 'abc')
-	//	assert.equal(sc.strip(''), '')
-	//	assert.equal(sc.strip('\x1b[m'), '')
-	//	assert.equal(sc.strip('\x1b[12m'), '')
-	//
-	//	assert.equal(sc.strip('\x1b[m123'), '123')
-	//	assert.equal(sc.strip('\x1b[12m123'), '123')
-	//	assert.equal(sc.strip('\x1b[12;34m123'), '123')
-	//
-	//	assert.equal(sc.strip('\x1b[30m black \x1b[m\x1b[31m red'), ' black  red')
-	//	assert.equal(sc.strip('\x1b[12maaa\x1b[mbbb\x1b[12;34;56;78mccc'), 'aaabbbccc')
-	//	assert.equal(sc.strip('\x1b[1;31maaa\nbbb\x1b[m'), 'aaa\nbbb')
-	//	assert.equal(sc.strip('mm[\x1b[15;23mabcdefg\x1b[mmm'), 'mm[abcdefgmm')
-	//})
+	QUnit.test('strip()', function (assert) {
+		assert.equal(ShellColor.strip('abc'), 'abc')
+		assert.equal(ShellColor.strip(''), '')
+		assert.equal(ShellColor.strip('\x1b[m'), '')
+		assert.equal(ShellColor.strip('\x1b[12m'), '')
+
+		assert.equal(ShellColor.strip('\x1b[m123'), '123')
+		assert.equal(ShellColor.strip('\x1b[12m123'), '123')
+		assert.equal(ShellColor.strip('\x1b[12;34m123'), '123')
+
+		assert.equal(ShellColor.strip('\x1b[30m black \x1b[m\x1b[31m red'), ' black  red')
+		assert.equal(ShellColor.strip('\x1b[12maaa\x1b[mbbb\x1b[12;34;56;78mccc'), 'aaabbbccc')
+		assert.equal(ShellColor.strip('\x1b[1;31maaa\nbbb\x1b[m'), 'aaa\nbbb')
+		assert.equal(ShellColor.strip('mm[\x1b[15;23mabcdefg\x1b[mmm'), 'mm[abcdefgmm')
+	})
 
 	//QUnit.test('convertToHtml()', function (assert) {
 	//	var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'

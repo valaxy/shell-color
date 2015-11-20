@@ -23,10 +23,13 @@ module.exports = {
 			this._appendSnippet(firstSnippet)
 		}
 
+		// add rest snippets
 		for (var i = 1; i < snippets.length; i++) {
 			this._createLine()
 			var snippet = snippets[i]
-			this._appendSnippet(snippet)
+			if (snippet != '') { // ignore empty string
+				this._appendSnippet(snippet)
+			}
 		}
 	}
 }
