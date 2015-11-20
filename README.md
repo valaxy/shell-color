@@ -1,4 +1,4 @@
-> API of 1.0.0-alpha may not stable
+> API of 1.0.0-dev may not stable
 
 shell-color
 ===========
