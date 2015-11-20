@@ -67,8 +67,12 @@ ShellColor.prototype._transformText_brTag = function (text) {
 ShellColor.prototype._transformText_blockTag = function (text) {
 	var units = text.split('\n')
 	var tags = units.map(function (unit) {
-		var blockTag = this._help.createTagBySGR(this._options.textInlineTag, this._sgr)
-		blockTag.innerText = unit == '' ? ' ' : unit // at least a space char, otherwise tag has no height
+		var blockTag = this._help.createTagBySGR(this._options.textBlockTag, this._sgr)
+		if (unit == '') {
+			blockTag.innerHTML = '&nbsp;'  // at least a space placeholder, otherwise tag has no height
+		} else {
+			blockTag.innerText = unit
+		}
 		return blockTag
 	}.bind(this))
 	return tags

@@ -1,0 +1,29 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        title style
+        link(href="test-style.css" rel="stylesheet")
+    body
+        div#everything
+        script(src="../bower_components/requirejs/require.js")
+        script(src="config.js")
+        script.
+            require(['cjs!src/shell-color'], function (ShellColor) {
+                var sc = new ShellColor({
+                    lineFeedTransform: 'blockTag'
+                })
+                var div = document.getElementById('everything')
+                var tags = sc.convertToHTMLTags([
+                    'abc',
+                    '',
+                    '123',
+                    '',
+                    '',
+                    'ggg',
+                    'xxx'
+                ].join('\n'))
+                tags.forEach(function (tag) {
+                    div.appendChild(tag)
+                })
+            })
