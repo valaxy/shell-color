@@ -14,8 +14,8 @@ var DEFAULT_BACKGROUND_COLOR = 'black'
  * @class ShellColor
  * @paras options
  *      colorMap:           a color map
- *      lineFeedTransform: 'keep' | 'brTag'(default) | 'blockTag'
- *      lineFeedBlockTag:   default is 'p', useful only if lineFeedTransform == 'blockTag'
+ *      lineFeedTransform: 'brTag'(default) | 'blockTag'
+ *      textBlockTag:       default is 'p', useful only if lineFeedTransform == 'blockTag'
  *      textInlineTag:      default is 'span'
  */
 var ShellColor = function (options) {
@@ -24,8 +24,21 @@ var ShellColor = function (options) {
 	options.defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
 	options.defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
 	options.lineFeedTransform = options.lineFeedTransform || 'brTag'
+	options.textBlockTag = options.textBlockTag || 'p'
+	options.textInlineTag = options.textInlineTag || 'span'
+
+	this._options = options
 	this._help = sgrHelp(options)
 	this.reset()
+
+	switch (options.lineFeedTransform) {
+		case 'brTag':
+			this._transformText = this._transformText_brTag
+			break
+		case 'blockTag':
+			this._transformText = this._transformText_blockTag
+			break
+	}
 }
 
 
@@ -41,16 +54,24 @@ var consumeCodes = function (help, sgr, escapeMatch) {
 	}
 }
 
-ShellColor.prototype._transformText_keep = function () {
 
+// transform text on type of brTag
+ShellColor.prototype._transformText_brTag = function (text) {
+	var inlineTag = this._help.createTagBySGR(this._options.textInlineTag, this._sgr)
+	inlineTag.innerText = text
+	return [inlineTag]
 }
 
-ShellColor.prototype._transformText_brTag = function () {
 
-}
-
-ShellColor.prototype._transformText_blockTag = function () {
-
+// transform text on type of blockTag
+ShellColor.prototype._transformText_blockTag = function (text) {
+	var units = text.split('\n')
+	var tags = units.map(function (unit) {
+		var blockTag = this._help.createTagBySGR(this._options.textInlineTag, this._sgr)
+		blockTag.innerText = unit == '' ? ' ' : unit // at least a space char, otherwise tag has no height
+		return blockTag
+	}.bind(this))
+	return tags
 }
 
 /**
@@ -70,9 +91,7 @@ ShellColor.prototype.convertToHTMLTags = function (str) {
 		if (escapeMatch) { // ansi escape code
 			consumeCodes(this._help, this._sgr, escapeMatch)
 		} else {           // normal text
-			var span = this._help.createTagBySGR(this._sgr)
-			span.innerText = s
-			tags.push(span)
+			tags.push.apply(tags, this._transformText(s))
 		}
 	}
 
@@ -115,7 +134,6 @@ ShellColor.prototype.reset = function () {
 }
 
 module.exports = ShellColor
-
 
 //var encodeStr = function (str) {
 //	var s = ''

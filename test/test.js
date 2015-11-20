@@ -1,5 +1,6 @@
 define(function (require) {
 	var ShellColor = require('cjs!src/shell-color')
+	var _ = require('underscore')
 	var $ = require('jquery')
 	var sc
 
@@ -23,6 +24,29 @@ define(function (require) {
 		assert.equal(sc.strip('\x1b[12maaa\x1b[mbbb\x1b[12;34;56;78mccc'), 'aaabbbccc')
 		assert.equal(sc.strip('\x1b[1;31maaa\nbbb\x1b[m'), 'aaa\nbbb')
 		assert.equal(sc.strip('mm[\x1b[15;23mabcdefg\x1b[mmm'), 'mm[abcdefgmm')
+	})
+
+	QUnit.test('_transformText_brTag()', function (assert) {
+		var tags = sc._transformText_brTag('123\n456\n\n789')
+		tags = _.map(tags, function (tag) {
+			return tag.innerHTML
+		})
+		assert.deepEqual(tags, ['123<br>456<br><br>789'])
+	})
+
+	QUnit.test('_transformText_blockTag()', function (assert) {
+		var tags = sc._transformText_blockTag('\n123\n456\n\n789\n')
+		tags = _.map(tags, function (tag) {
+			return tag.innerHTML
+		})
+		assert.deepEqual(tags, [
+			' ',
+			'123',
+			'456',
+			' ',
+			'789',
+			' '
+		])
 	})
 
 	//QUnit.test('convertToHtml()', function (assert) {

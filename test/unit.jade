@@ -10,15 +10,8 @@ html
 
         script(src="../bower_components/qunit/qunit/qunit.js")
         script(src="../bower_components/requirejs/require.js")
+        script(src="config.js")
         script.
-            requirejs.config({
-                baseUrl: '../',
-                paths  : {
-                    'jquery'    : 'bower_components/jquery/dist/jquery',
-                    'cjs'       : 'bower_components/cjs/cjs',
-                    'amd-loader': 'bower_components/amd-loader/amd-loader'
-                }
-            })
             QUnit.config.autostart = false
             require(['test/test'], function () {
                 QUnit.start()

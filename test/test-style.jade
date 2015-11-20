@@ -8,11 +8,9 @@ html
         div#everything
 
         script(src="../bower_components/requirejs/require.js")
+        script(src="config.js")
         script.
-            requirejs.config({
-                baseUrl: '../'
-            })
-            require(['src/shell-color'], function (ShellColor) {
+            require(['cjs!src/shell-color'], function (ShellColor) {
                 var sc = new ShellColor({
                     //                    colorMap              : {
                     //                        white: '#cccccc',

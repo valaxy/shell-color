@@ -128,17 +128,17 @@ var getDefaultSGR = function () {
 }
 
 
-var createTagBySGR = function (sgr) {
+var createTagBySGR = function (tagName, sgr) {
 	var colorMap = this._options.colorMap
-	var span = document.createElement('span')
-	span.style.color = getCssColor(sgr.color, colorMap)
-	span.style.background = getCssColor(sgr.background, colorMap)
-	span.style.fontWeight = sgr.bold ? 'weight' : 'normal'
-	span.style.fontStyle = sgr.italic ? 'italic' : 'normal'
-	span.style.textDecoration = sgr.underline ? 'underline' : ''
-	span.style.textDecoration += sgr.deletion ? ' line-through' : ''
-	span.style.textDecoration += sgr.overline ? ' overline' : ''
-	return span
+	var tag = document.createElement(tagName)
+	tag.style.color = getCssColor(sgr.color, colorMap)
+	tag.style.background = getCssColor(sgr.background, colorMap)
+	tag.style.fontWeight = sgr.bold ? 'weight' : 'normal'
+	tag.style.fontStyle = sgr.italic ? 'italic' : 'normal'
+	tag.style.textDecoration = sgr.underline ? 'underline' : ''
+	tag.style.textDecoration += sgr.deletion ? ' line-through' : ''
+	tag.style.textDecoration += sgr.overline ? ' overline' : ''
+	return tag
 }
 
 module.exports = function (options) {

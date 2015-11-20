@@ -1,24 +1,39 @@
+> API of 1.0.0-alpha may not stable
+> Can not keep line feed
+
 shell-color
 ===========
 
-Javascript to parse linux shell with color info, for AMD/CMD package
+Javascript to parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_code) and render to HTML, for CommonJS package
+
+> RequireJS and AMD package user check [guybedford/cjs](https://github.com/guybedford/cjs)
 
 ![style](doc/style.png)
 
-# Usage
+# Options
 ```javascript
-var text = '\x1b[30m black \x1b[m\x1b[31m red'
-
-// instance
 var ShellColor = require('shell-color')
 var sc = new ShellColor({	
 	colorMap: {                       // optional
 		white: '#cccccc',
     	black: '#333333'	
 	},
+	lineFeedTransform: 'brTag',       // or 'blockTag'
 	defaultBackgroundColor: 'white',  // optional
 	defaultForegroundColor: 'black'   // optional
 })
+```
+
+# API
+> You can not keep `\n` in text, because `tag.innerText` convert `\n` to `<br>`, for example:    
+> ```javascript
+> var span = document.createElement('span')
+> span.innerText = '123\n\n456'
+> assert.equal(span.innerHTML, '123<br><br>567')
+> ```
+
+```javascript
+var text = '\x1b[30m black \x1b[m\x1b[31m red'
 
 // convertToHTMLTags
 var tags = sc.convertToHTMLTags(text)
