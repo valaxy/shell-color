@@ -1,5 +1,4 @@
 > API of 1.0.0-alpha may not stable
-> Can not keep line feed
 
 shell-color
 ===========
@@ -25,7 +24,7 @@ var sc = new ShellColor({
 ```
 
 # API
-> You can not keep `\n` in text, because `tag.innerText` convert `\n` to `<br>`, for example:    
+> You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example:    
 > ```javascript
 > var span = document.createElement('span')
 > span.innerText = '123\n\n456'
