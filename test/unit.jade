@@ -14,7 +14,12 @@ html
             requirejs.config({
                 baseUrl: '../',
                 paths  : {
-                    jquery: 'bower_components/jquery/dist/jquery'
+                    'jquery'    : 'bower_components/jquery/dist/jquery',
+                    'cjs'       : 'bower_components/cjs/cjs',
+                    'amd-loader': 'bower_components/amd-loader/amd-loader'
                 }
             })
-            require(['test/test'])
+            QUnit.config.autostart = false
+            require(['test/test'], function () {
+                QUnit.start()
+            })

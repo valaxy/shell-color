@@ -1,5 +1,5 @@
 define(function (require) {
-	var ShellColor = require('src/shell-color')
+	var ShellColor = require('cjs!src/shell-color')
 	var $ = require('jquery')
 	var sc
 
