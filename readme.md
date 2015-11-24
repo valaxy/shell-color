@@ -72,7 +72,8 @@ Create a new stream, before write you must call reset at least once.
 ## sc.write(text)
 Push a text to current stream
 
-> You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example: ```javascript    
+> You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example:
+> ```javascript    
 > var span = document.createElement('span')
 > span.innerText = '123\n\n456'
 > assert.equal(span.innerHTML, '123<br><br>567')
