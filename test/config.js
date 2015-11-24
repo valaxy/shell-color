@@ -1,10 +1,10 @@
 requirejs.config({
 	baseUrl: '../',
 	paths  : {
-		'jquery'      : 'bower_components/jquery/dist/jquery',
-		'cjs'         : 'bower_components/cjs/cjs',
-		'amd-loader'  : 'bower_components/amd-loader/amd-loader',
-		'underscore'  : 'bower_components/underscore/underscore',
-		'eventEmitter': 'bower_components/eventEmitter/EventEmitter'
+		'jquery'              : 'node_modules/jquery/dist/jquery',
+		'cjs'                 : 'node_modules/cjs/cjs',
+		'amd-loader'          : 'node_modules/amd-loader/amd-loader',
+		'underscore'          : 'node_modules/underscore/underscore',
+		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter'
 	}
 })

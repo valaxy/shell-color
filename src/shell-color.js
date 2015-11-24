@@ -1,5 +1,5 @@
 var sgrHelp         = require('./sgr-help'),
-    EventEmitter    = require('eventEmitter'),
+    EventEmitter    = require('wolfy87-eventemitter'),
     InlineProcessor = require('./inline-processor'),
     BlockProcessor  = require('./block-processor')
 

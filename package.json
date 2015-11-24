@@ -1,0 +1,36 @@
+{
+  "name": "shell-color",
+  "version": "1.0.0-dev",
+  "description": "",
+  "main": [
+    "src/shell-color.js"
+  ],
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/valaxy/shell-color.git"
+  },
+  "author": "valaxy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/valaxy/shell-color/issues"
+  },
+  "homepage": "https://github.com/valaxy/shell-color",
+  "devDependencies": {
+    "amd-loader": "github:valaxy/amd-loader",
+    "cjs": "github:guybedford/cjs",
+    "jquery": "^2.1.4",
+    "qunitjs": "^1.20.0",
+    "requirejs": "^2.1.22",
+    "underscore": "^1.8.3"
+  },
+  "dependencies": {
+    "wolfy87-eventemitter": "^4.3.0"
+  }
+}
