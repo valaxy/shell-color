@@ -5,16 +5,16 @@ shell-color
 
 Javascript parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_code) and render to HTML, for CommonJS package
 
-> RequireJS and AMD package user check [guybedford/cjs](https://github.com/guybedford/cjs)
-
 ![style](doc/style.png)
 
 # Install
-```bash
+```sh
 npm install --save github:valaxy/shell-color
 ```
 
 ## For AMD/RequireJS
+> RequireJS user check [guybedford/cjs](https://github.com/guybedford/cjs)
+
 ```javascript
 requirejs.config({
 	paths: {
@@ -44,10 +44,7 @@ var sc = new ShellColor({
 	defaultForegroundColor: 'black',  // optional
 	textInlineTag:          'span'    // optional
 })
-```
 
-# Example
-```javascript
 var sc = new ShellColor
 
 sc.on('lineStart', function() {
@@ -75,8 +72,7 @@ Create a new stream, before write you must call reset at least once.
 ## sc.write(text)
 Push a text to current stream
 
-> You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example:    
-> ```javascript
+> You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example: ```javascript    
 > var span = document.createElement('span')
 > span.innerText = '123\n\n456'
 > assert.equal(span.innerHTML, '123<br><br>567')
