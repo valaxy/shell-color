@@ -1,5 +1,5 @@
 requirejs.config({
-	baseUrl: '../',
+	baseUrl: '../../',
 	paths  : {
 		'jquery'              : 'node_modules/jquery/dist/jquery',
 		'cjs'                 : 'node_modules/cjs/cjs',
