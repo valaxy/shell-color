@@ -1,10 +1,8 @@
 define(function (require) {
 	var ShellColor = require('cjs!src/shell-color')
-	var _ = require('underscore')
 	var $ = require('jquery')
 
 	QUnit.module('ShellColor')
-
 
 	var collectBlockPorcessor = function (text, sc, html) {
 		html = html ? html : []

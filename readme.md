@@ -1,29 +1,80 @@
-> 1.0.0-dev is under development, the document is deprecated
+> 1.0.0-alpha, the document is not completely finish
 
 shell-color
 ===========
 
-Javascript to parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_code) and render to HTML, for CommonJS package
+Javascript parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_code) and render to HTML, for CommonJS package
 
 > RequireJS and AMD package user check [guybedford/cjs](https://github.com/guybedford/cjs)
 
 ![style](doc/style.png)
 
-# Options
+# Install
+```bash
+npm install --save github:valaxy/shell-color
+```
+
+## For AMD/RequireJS
+```javascript
+requirejs.config({
+	paths: {
+		'cjs'                 : 'node_modules/cjs/cjs',
+		'amd-loader'          : 'node_modules/amd-loader/amd-loader',
+		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter',
+		'shell-color'         : 'node_modules/shell-color/src/'
+	}
+})
+
+var ShellColor = require('shell-color/shell-color')
+```
+
+## For CommonJS/Node
 ```javascript
 var ShellColor = require('shell-color')
+```
+
+# Usage
+```javascript
 var sc = new ShellColor({	
 	colorMap: {                       // optional
 		white: '#cccccc',
     	black: '#333333'	
 	},
-	lineFeedTransform: 'brTag',       // or 'blockTag'
 	defaultBackgroundColor: 'white',  // optional
-	defaultForegroundColor: 'black'   // optional
+	defaultForegroundColor: 'black',  // optional
+	textInlineTag:          'span'    // optional
 })
 ```
 
-# API
+# Example
+```javascript
+var sc = new ShellColor
+
+sc.on('lineStart', function() {
+	var startInfo = document.createElement('b')
+	startInfo.innerText = 'start:'
+	document.body.append(startInfo)
+})
+
+sc.on('snippet', function(tag) {
+	document.body.append(tag)
+})
+
+sc.on('lineEnd', function() {
+	var br = document.body.append('br')
+	document.body.append(br)
+})
+
+sc.reset()
+sc.write('\x1b[30m black\n\x1b[m\x1b[31m red\nend')
+```
+
+## sc.reset()
+Create a new stream, before write you must call reset at least once.
+
+## sc.write(text)
+Push a text to current stream
+
 > You can not keep `\n` in final output, because `tag.innerText` convert `\n` to `<br>`, for example:    
 > ```javascript
 > var span = document.createElement('span')
@@ -31,27 +82,34 @@ var sc = new ShellColor({
 > assert.equal(span.innerHTML, '123<br><br>567')
 > ```
 
+## sc.on()
+```javascript
+sc.on('lineStart', function() { ... })
+sc.on('snippet', function(tag) { ... })
+sc.on('lineEnd', function() { ... })
+```
+
+## ShellColor.strip(text)
 ```javascript
 var text = '\x1b[30m black \x1b[m\x1b[31m red'
+var str = sc.strip(text) // ' black  red'
+```
 
-// convertToHTMLTags
-var tags = sc.convertToHTMLTags(text)
+## ShellColor.toBlockTags(text)
+```javascript
+var tags = ShellColor.toBlockTags(text)
 tags.forEach(function (tag) {
-	document.body.appendChild(tag)
+	document.body.appendChild(tag) // <p>...</p>
 })
+```
 
-// convertToHTML
-var html = sc.convertToHTML(text)
-var div = document.createElement('div')
-div.innerHTML = html
-document.body.appendChild(div)
 
-// strip
-var str = sc.strip(text)
-console.log(str) // ' black  red'
-
-// reset
-sc.reset()
+## ShellColor.toInlineTags(text)
+```javascript
+var tags = ShellColor.toInlineTags(text)
+tags.forEach(function (tag) {
+	document.body.appendChild(tag) // <span>...</span> or <br>
+})
 ```
 
 # Reference
