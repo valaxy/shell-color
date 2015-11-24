@@ -2,9 +2,7 @@
   "name": "shell-color",
   "version": "1.0.0-dev",
   "description": "",
-  "main": [
-    "src/shell-color.js"
-  ],
+  "main": "src/shell-color.js",
   "directories": {
     "doc": "doc",
     "test": "test"
