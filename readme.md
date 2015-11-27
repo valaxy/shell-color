@@ -18,16 +18,12 @@ requirejs.config({
 	paths: {
 		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter',
 		'cjs'                 : 'node_modules/cjs/cjs',
-		'amd-loader'          : 'node_modules/amd-loader/amd-loader'
-	},
-	maps: {
-		'*': {
-			'shell-color'         : 'node_modules/shell-color/src/shell-color'
-		}
+		'amd-loader'          : 'node_modules/amd-loader/amd-loader',
+		'shell-color'         : 'node_modules/shell-color/src/'
 	}
 })
 
-var ShellColor = require('cjs!shell-color')
+var ShellColor = require('cjs!shell-color/index')
 ```
 
 # Usage
