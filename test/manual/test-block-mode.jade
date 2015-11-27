@@ -3,18 +3,21 @@ html
     head
         meta(charset="utf-8")
         title style
-        link(href="test-style.css" rel="stylesheet")
+        style.
+            span {
+                display:      inline;
+                margin-right: 5px;
+                padding:      4px 0;
+                line-height:  1.8em;
+            }
     body
         div#everything
-        script(src="../node_modules/requirejs/require.js")
-        script(src="config.js")
+        script(src="../../node_modules/requirejs/require.js")
+        script(src="../unit/config.js")
         script.
             require(['cjs!src/shell-color'], function (ShellColor) {
-                var sc = new ShellColor({
-                    lineFeedTransform: 'blockTag'
-                })
                 var div = document.getElementById('everything')
-                var tags = sc.convertToHTMLTags([
+                ShellColor.toBlockTags([
                     'abc',
                     '',
                     '123',
@@ -22,8 +25,7 @@ html
                     '',
                     'ggg',
                     'xxx'
-                ].join('\n'))
-                tags.forEach(function (tag) {
+                ].join('\n')).forEach(function (tag) {
                     div.appendChild(tag)
                 })
             })

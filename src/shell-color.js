@@ -19,7 +19,7 @@ var DEFAULT_BACKGROUND_COLOR = 'black'
  *      colorMap:                a color map
  *      defaultForegroundColor:
  *      defaultBackgroundColor:
- *      textInlineTag:           default is 'span'
+ *      snippetTag:              default is 'span'
  * @Event:
  *      lineStart: trigger at line start
  *      snippet:   trigger at output text
@@ -30,7 +30,7 @@ var ShellColor = function (options) {
 	options.colorMap = options.colorMap || {}
 	options.defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
 	options.defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
-	options.textInlineTag = options.textInlineTag || 'span'
+	options.snippetTag = options.snippetTag || 'span'
 	Object.assign(this, BlockProcessor)
 
 	this._options = options
@@ -56,7 +56,7 @@ Object.assign(ShellColor.prototype, {
 	},
 
 	_createInlineTag: function (text) {
-		var inlineTag = this._help.createTagBySGR(this._options.textInlineTag, this._sgr)
+		var inlineTag = this._help.createTagBySGR(this._options.snippetTag, this._sgr)
 		inlineTag.innerText = text
 		return inlineTag
 	},
@@ -123,6 +123,7 @@ Object.assign(ShellColor, {
 	 * @param options:
 	 *      lineTag:    default is p
 	 *      snippetTag: default is span
+	 *      others of ShellColor
 	 * @returns {Array} html tags include text, tag is used for hold styles
 	 */
 	toBlockTags: function (str, options) {
@@ -130,7 +131,7 @@ Object.assign(ShellColor, {
 		options.lineTag = options.lineTag || 'p'
 		options.snippetTag = options.snippetTag || 'span'
 
-		var sc = new ShellColor({textInlineTag: options.snippetTag})
+		var sc = new ShellColor(options)
 		var tags = []
 		var lastLine
 		sc.on('lineStart', function () {
@@ -150,12 +151,13 @@ Object.assign(ShellColor, {
 	 ** text: the string
 	 ** options:
 	 **     snippetTag: default is span
+	 **     others of ShellColor
 	 */
 	toInlineTags: function (text, options) {
 		options = options || {}
 		options.snippetTag = options.snippetTag || 'span'
 
-		var sc = new ShellColor({textInlineTag: options.snippetTag})
+		var sc = new ShellColor(options)
 		var tags = []
 		sc.on('lineEnd', function () {
 			var br = document.createElement('br')

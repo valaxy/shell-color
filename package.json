@@ -1,6 +1,6 @@
 {
   "name": "shell-color",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "description": "",
   "main": "src/shell-color.js",
   "directories": {
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/valaxy/shell-color",
   "devDependencies": {
     "amd-loader": "github:valaxy/amd-loader",
-    "cjs": "github:guybedford/cjs",
+    "cjs": "github:valaxy/cjs",
     "jquery": "^2.1.4",
     "qunitjs": "^1.20.0",
     "requirejs": "^2.1.22"

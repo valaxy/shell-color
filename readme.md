@@ -12,25 +12,22 @@ Javascript parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_co
 npm install --save github:valaxy/shell-color
 ```
 
-## For AMD/RequireJS
+# For AMD/RequireJS
 > RequireJS user check [guybedford/cjs](https://github.com/guybedford/cjs)
 
 ```javascript
 requirejs.config({
 	paths: {
-		'cjs'                 : 'node_modules/cjs/cjs',
-		'amd-loader'          : 'node_modules/amd-loader/amd-loader',
 		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter',
-		'shell-color'         : 'node_modules/shell-color/src/'
+		'cjs'                 : 'node_modules/cjs/cjs',
+		'amd-loader'          : 'node_modules/amd-loader/amd-loader'
+	},
+	maps: {
+		'shell-color'         : 'node_modules/shell-color/src/shell-color'
 	}
 })
 
-var ShellColor = require('shell-color/shell-color')
-```
-
-## For CommonJS/Node
-```javascript
-var ShellColor = require('shell-color')
+var ShellColor = require('cjs!shell-color')
 ```
 
 # Usage
@@ -42,7 +39,7 @@ var sc = new ShellColor({
 	},
 	defaultBackgroundColor: 'white',  // optional
 	defaultForegroundColor: 'black',  // optional
-	textInlineTag:          'span'    // optional
+	snippetTag:             'span'    // optional
 })
 
 var sc = new ShellColor
