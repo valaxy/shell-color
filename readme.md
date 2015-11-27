@@ -1,5 +1,3 @@
-> 1.0.0-alpha, the document is not completely finish
-
 shell-color
 ===========
 
@@ -23,7 +21,9 @@ requirejs.config({
 		'amd-loader'          : 'node_modules/amd-loader/amd-loader'
 	},
 	maps: {
-		'shell-color'         : 'node_modules/shell-color/src/shell-color'
+		'*': {
+			'shell-color'         : 'node_modules/shell-color/src/shell-color'
+		}
 	}
 })
 
