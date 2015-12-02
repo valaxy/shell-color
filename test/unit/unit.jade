@@ -13,6 +13,11 @@ html
         script(src="config.js")
         script.
             QUnit.config.autostart = false
-            require(['test/unit/test'], function () {
+            require([
+                //'test/unit/shell-color',
+                'test/unit/sgr',
+                'test/unit/sgr-parser',
+                'test/unit/sgr-parser-worker'
+            ], function () {
                 QUnit.start()
             })

@@ -102,6 +102,9 @@ tags.forEach(function (tag) {
 })
 ```
 
+# ChangeLog
+- 1.1.0 Add web worker support
+
 # Reference
 - https://en.wikipedia.org/wiki/ANSI_escape_code
 - http://www.2cto.com/os/201112/114400.html
