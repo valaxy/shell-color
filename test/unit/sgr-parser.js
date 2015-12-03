@@ -18,7 +18,10 @@ define(function (require) {
 			bind()
 			sc.write(text)
 		} else {
-			sc = new SGRParser
+			sc = new SGRParser({
+				defaultForegroundColor: 'white',
+				defaultBackgroundColor: 'blue'
+			})
 			bind()
 			sc.reset().write(text)
 		}
@@ -43,7 +46,10 @@ define(function (require) {
 			'^'])
 
 		// test series of
-		var sc = new SGRParser
+		var sc = new SGRParser({
+			defaultForegroundColor: 'white',
+			defaultBackgroundColor: 'blue'
+		})
 		sc.reset()
 		assert.deepEqual(collectBlockPorcessor('a', sc), ['a']) // ignore first lineStart
 		assert.deepEqual(collectBlockPorcessor('b\nc', sc), ['b', '$', '^', 'c'])
@@ -54,7 +60,10 @@ define(function (require) {
 
 
 	QUnit.test('event: onSnippet', function (assert) {
-		var parser = new SGRParser
+		var parser = new SGRParser({
+			defaultForegroundColor: 'blue',
+			defaultBackgroundColor: 'black'
+		})
 		parser.on('snippet', function (text, style) {
 			assert.equal(text, 'XXXXXX')
 			assert.deepEqual(style, {

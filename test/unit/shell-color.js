@@ -1,54 +1,34 @@
 define(function (require) {
-	var ShellColor = require('cjs!src/index')
+	var ShellColor = require('src/index')
 	var $ = require('jquery')
 
-	QUnit.module('ShellColor')
+	QUnit.module('ShellColor:NonWorker')
 
-	var collectBlockPorcessor = function (text, sc, html) {
-		html = html ? html : []
-		var bind = function () {
-			sc.on('snippet', function (tag) {
-				html.push(tag.innerHTML)
-			}).on('lineStart', function () {
-				html.push('^')
-			}).on('lineEnd', function () {
-				html.push('$')
-			})
-		}
-		if (sc) {
-			bind()
-			sc.write(text)
-		} else {
-			sc = new ShellColor
-			bind()
-			sc.reset().write(text)
-		}
-
-		return html
+	var createShellColor = function (options, events) {
+		var sc = new ShellColor(options)
+		sc.on('reset', function () {
+			events.push('reset')
+		}).on('snippet', function (tag) {
+			events.push(tag.innerText)
+		}).on('lineStart', function () {
+			events.push('^')
+		}).on('lineEnd', function () {
+			events.push('$')
+		})
+		return sc
 	}
 
+	QUnit.test('_getCssColor()', function (assert) {
+		var sc = new ShellColor({
+			colorMap: {
+				blue  : '#111',
+				yellow: '#222'
+			}
+		})
 
-	QUnit.test('block-processor()', function (assert) {
-		assert.deepEqual(collectBlockPorcessor(''), ['^'])
-		assert.deepEqual(collectBlockPorcessor('  '), ['^', '  '])
-		assert.deepEqual(collectBlockPorcessor('\n'), ['^', '$', '^'])
-		assert.deepEqual(collectBlockPorcessor('\n\n'), ['^', '$', '^', '$', '^'])
-		assert.deepEqual(collectBlockPorcessor('\n123\n'), ['^', '$', '^', '123', '$', '^'])
-		assert.deepEqual(collectBlockPorcessor('\n123\n456\n\n789\n'), [
-			'^', '$',
-			'^', '123', '$',
-			'^', '456', '$',
-			'^', '$',
-			'^', '789', '$',
-			'^'])
-
-		var sc = new ShellColor
-		sc.reset()
-		assert.deepEqual(collectBlockPorcessor('a', sc), ['a']) // ignore first lineStart
-		assert.deepEqual(collectBlockPorcessor('b\nc', sc), ['b', '$', '^', 'c'])
-		assert.deepEqual(collectBlockPorcessor('\nd\n', sc), ['$', '^', 'd', '$', '^'])
-		assert.deepEqual(collectBlockPorcessor('\ne\n', sc), ['$', '^', 'e', '$', '^'])
-		assert.deepEqual(collectBlockPorcessor('fg', sc), ['fg'])
+		assert.equal(sc._getCssColor('white'), '#FFFFFF')
+		assert.equal(sc._getCssColor('blue'), '#111')
+		assert.equal(sc._getCssColor('yellow'), '#222')
 	})
 
 
@@ -66,54 +46,78 @@ define(function (require) {
 		})
 		sc.reset()
 		sc.write('abc')
+		assert.expect(2)
 	})
 
-	QUnit.test('strip()', function (assert) {
-		assert.equal(ShellColor.strip('abc'), 'abc')
-		assert.equal(ShellColor.strip(''), '')
-		assert.equal(ShellColor.strip('\x1b[m'), '')
-		assert.equal(ShellColor.strip('\x1b[12m'), '')
-
-		assert.equal(ShellColor.strip('\x1b[m123'), '123')
-		assert.equal(ShellColor.strip('\x1b[12m123'), '123')
-		assert.equal(ShellColor.strip('\x1b[12;34m123'), '123')
-
-		assert.equal(ShellColor.strip('\x1b[30m black \x1b[m\x1b[31m red'), ' black  red')
-		assert.equal(ShellColor.strip('\x1b[12maaa\x1b[mbbb\x1b[12;34;56;78mccc'), 'aaabbbccc')
-		assert.equal(ShellColor.strip('\x1b[1;31maaa\nbbb\x1b[m'), 'aaa\nbbb')
-		assert.equal(ShellColor.strip('mm[\x1b[15;23mabcdefg\x1b[mmm'), 'mm[abcdefgmm')
-	})
-
-	QUnit.test('toInlineTags()', function (assert) {
-		// escape code
-		var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
-		var $dom = $('<div>')
-		ShellColor.toInlineTags(text).forEach(function (tag) {
-			$dom.append(tag)
-		})
-		assert.equal($dom.text(), 'abcdefghijklmnopqrst')
-
-		// \n
-		text = 'abc\nefg\nxyz'
-		var tagNames = ShellColor.toInlineTags(text).map(function (tag) {
-			return tag.tagName
-		})
-		assert.deepEqual(tagNames, ['SPAN', 'BR', 'SPAN', 'BR', 'SPAN'])
-	})
-
-
-	QUnit.test('toBlockTags()', function (assert) {
-		var text = '\u001b[15;23mabcdefg\n\u001b[mhijklmn\n\u001b[15;24mopqrst\u001b[m'
-		var lines = ShellColor.toBlockTags(text).map(function (blockTag) {
-			return blockTag.innerText
-		})
-		assert.deepEqual(lines, [
-			'abcdefg',
-			'hijklmn',
-			'opqrst'
+	QUnit.test('eventStream', function (assert) {
+		var events = []
+		var sc = createShellColor(null, events)
+		sc.reset().write('abcd\nxxyy')
+		assert.deepEqual(events, [
+			'reset',
+			'^', 'abcd', '$',
+			'^', 'xxyy'
 		])
 	})
+
+
+	QUnit.module('ShellColor:Worker')
+
+	QUnit.test('eventStream', function (assert) {
+		var done = assert.async()
+		var events = []
+		var sc = createShellColor({
+			useWorker: true,
+			worker   : {
+				path    : './worker-test.js',
+				callback: function () {
+					sc.reset().write('abcd\nxxyy')
+					setTimeout(function () {
+						assert.deepEqual(events, [
+							'reset',
+							'^', 'abcd', '$',
+							'^', 'xxyy'
+						])
+						done()
+					}, 1000) // ensure all output is over after 1s
+				}
+			}
+		}, events)
+	})
+
 })
+
+
+//QUnit.test('toInlineTags()', function (assert) {
+//	// escape code
+//	var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
+//	var $dom = $('<div>')
+//	ShellColor.toInlineTags(text).forEach(function (tag) {
+//		$dom.append(tag)
+//	})
+//	assert.equal($dom.text(), 'abcdefghijklmnopqrst')
+//
+//	// \n
+//	text = 'abc\nefg\nxyz'
+//	var tagNames = ShellColor.toInlineTags(text).map(function (tag) {
+//		return tag.tagName
+//	})
+//	assert.deepEqual(tagNames, ['SPAN', 'BR', 'SPAN', 'BR', 'SPAN'])
+//})
+//
+//
+//QUnit.test('toBlockTags()', function (assert) {
+//	var text = '\u001b[15;23mabcdefg\n\u001b[mhijklmn\n\u001b[15;24mopqrst\u001b[m'
+//	var lines = ShellColor.toBlockTags(text).map(function (blockTag) {
+//		return blockTag.innerText
+//	})
+//	assert.deepEqual(lines, [
+//		'abcdefg',
+//		'hijklmn',
+//		'opqrst'
+//	])
+//})
+
 
 //QUnit.test('convertToHtml(): config color', function (assert) {
 //	var text = '\u001b[15;31m   \u001b[m'

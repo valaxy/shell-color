@@ -1,89 +1,34 @@
 define(function (require, exports, module) {
+	var SGRParser     = require('./sgr-parser'),
+	    SGRParserPort = require('./sgr-parser-port'),
+	    EventEmitter  = require('wolfy87-eventemitter')
 
-	var sgrHelp        = require('./sgr-help'),
-	    EventEmitter   = require('wolfy87-eventemitter'),
-	    BlockProcessor = require('./block-processor')
-
-
-// tip: when you add groups, the groups will also show in split array
-	var ESCAPE_CODE_REG = /\x1b\[(?:(\d+)(?:;(\d+))*)?m/
-	var ESCAPE_CODE_REG_MUL = /\x1b\[(?:\d+(?:;\d+)*)?m/g
-	var ESCAPE_CODE_REG_FOR_SPLIT2 = /(\x1b\[(?:\d+(?:;\d+)*)?m)/g
-
-// color
+	// color
 	var DEFAULT_FOREGROUND_COLOR = 'white'
 	var DEFAULT_BACKGROUND_COLOR = 'black'
 
-	var createTagBySGR = function (tagName, sgr) {
-		var colorMap = this._options.colorMap
-		var tag = document.createElement(tagName)
-		tag.style.color = getCssColor(sgr.color, colorMap)
-		tag.style.background = getCssColor(sgr.background, colorMap)
-		tag.style.fontWeight = sgr.bold ? 'weight' : 'normal'
-		tag.style.fontStyle = sgr.italic ? 'italic' : 'normal'
-		tag.style.textDecoration = sgr.underline ? 'underline' : ''
-		tag.style.textDecoration += sgr.deletion ? ' line-through' : ''
-		tag.style.textDecoration += sgr.overline ? ' overline' : ''
-		return tag
-	}
 
-	/** Get color css by SGR color name */
-	var getCssColor = function (sgrColor, colorMap) {
-		if (sgrColor in colorMap) {
-			return colorMap[sgrColor]
-		}
-
-		switch (sgrColor) {
-			case 'black':
-				return '#000000'
-			case 'red':
-				return '#FF4136'
-			case 'green':
-				return '#2ECC40'
-			case 'yellow':
-				return '#FFDC00'
-			case 'blue':
-				return '#0074D9'
-			case 'magenta':
-				return '#85144B'
-			case 'cyan':
-				return '#001F3F'
-			case 'white':
-				return '#FFFFFF'
-			default:
-				throw sgrColor + ' is invalid SGR color name'
-		}
-	}
-
-	//_createInlineTag: function (text) {
-	//	var inlineTag = this._help.createTagBySGR(this._options.snippetTag, this._sgr)
-	//	inlineTag.innerText = text
-	//	return inlineTag
-	//},
-
-	/**
-	 * Create a new ShellColor instance
-	 * @class ShellColor
-	 * @paras options
-	 *      colorMap:                a color map
-	 *      defaultForegroundColor:
-	 *      defaultBackgroundColor:
-	 *      snippetTag:              default is 'span'
-	 * @Event:
-	 *      lineStart: trigger at line start
-	 *      snippet:   trigger at output text
-	 *      lineEnd:   trigger at line end
+	/** Create a new ShellColor instance
+	 ** options:
+	 **     snippetTag:             default is 'span'
+	 **     colorMap:               default is empty, a map of sgr color name to color css
+	 **     defaultForegroundColor: default is 'white'
+	 **     defaultBackgroundColor: default is 'black'
+	 **     useWorker:              default is false, if true, worker must exist
+	 **     worker:
+	 **         path:
+	 **         callback:
+	 ** Events:
+	 **     reset:     trigger at reset
+	 **     lineStart: trigger at line start
+	 **     snippet:   trigger at output text
+	 **     lineEnd:   trigger at line end
 	 */
 	var ShellColor = function (options) {
 		options = options || {}
-		options.colorMap = options.colorMap || {}
-		options.defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
-		options.defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
-		options.snippetTag = options.snippetTag || 'span'
-		Object.assign(this, BlockProcessor)
-
-		this._options = options
-		this._help = sgrHelp(options)
+		this._colorMap = options.colorMap || {}
+		this._snippetTag = options.snippetTag || 'span'
+		this._initParser(options)
 	}
 
 
@@ -92,22 +37,97 @@ define(function (require, exports, module) {
 	//------------------------------------------------------------------------------------------------------
 
 	Object.assign(ShellColor.prototype, {
+		_initParser: function (options) {
+			var defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
+			var defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
+			if (options.useWorker) {
+				this._parser = new SGRParserPort({
+					workerPath            : options.worker.path,
+					callback              : options.worker.callback,
+					defaultForegroundColor: defaultForegroundColor,
+					defaultBackgroundColor: defaultBackgroundColor
+				})
+			} else {
+				this._parser = new SGRParser({
+					defaultForegroundColor: defaultForegroundColor,
+					defaultBackgroundColor: defaultBackgroundColor
+				})
+			}
 
+			this._parser.on('reset', function () {
+				this.trigger('reset')
+			}.bind(this))
 
-		reset: function () {
+			this._parser.on('lineStart', function () {
+				this.trigger('lineStart')
+			}.bind(this))
 
+			this._parser.on('snippet', function (text, sgr) {
+				this.trigger('snippet', [this._createInlineTag(text, sgr), text])
+			}.bind(this))
+
+			this._parser.on('lineEnd', function () {
+				this.trigger('lineEnd')
+			}.bind(this))
 		},
 
-		write: function () {
+		// Get color css by SGR color name
+		_getCssColor: function (sgrColor) {
+			if (sgrColor in this._colorMap) {
+				return this._colorMap[sgrColor]
+			}
 
+			switch (sgrColor) {
+				case 'black':
+					return '#000000'
+				case 'red':
+					return '#FF4136'
+				case 'green':
+					return '#2ECC40'
+				case 'yellow':
+					return '#FFDC00'
+				case 'blue':
+					return '#0074D9'
+				case 'magenta':
+					return '#85144B'
+				case 'cyan':
+					return '#001F3F'
+				case 'white':
+					return '#FFFFFF'
+				default:
+					throw sgrColor + ' is invalid SGR color name'
+			}
+		},
+
+		_createInlineTag: function (text, sgr) {
+			var tag = document.createElement(this._snippetTag)
+			tag.style.color = this._getCssColor(sgr.color)
+			tag.style.background = this._getCssColor(sgr.background)
+			tag.style.fontWeight = sgr.bold ? 'weight' : 'normal'
+			tag.style.fontStyle = sgr.italic ? 'italic' : 'normal'
+			tag.style.textDecoration = sgr.underline ? 'underline' : ''
+			tag.style.textDecoration += sgr.deletion ? ' line-through' : ''
+			tag.style.textDecoration += sgr.overline ? ' overline' : ''
+			tag.innerText = text
+			return tag
+		},
+
+		reset: function () {
+			this._parser.reset()
+			return this
+		},
+
+		write: function (text) {
+			this._parser.write(text)
+			return this
 		}
 
 	}, EventEmitter.prototype)
 
 
-//------------------------------------------------------------------------------------------------------
-// Class API
-//------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------------
+	// Class API
+	//------------------------------------------------------------------------------------------------------
 
 	Object.assign(ShellColor, {
 		/**
@@ -178,16 +198,3 @@ define(function (require, exports, module) {
 
 	module.exports = ShellColor
 })
-
-//InlineProcessor = require('./inline-processor'),
-
-//options.lineFeedMode = options.lineFeedMode || 'brTag'
-//
-//switch (options.lineFeedMode) {
-//	case 'brTag':
-//		Object.assign(this, InlineProcessor)
-//		break
-//	case 'blockTag':
-//		Object.assign(this, BlockProcessor)
-//		break
-//}

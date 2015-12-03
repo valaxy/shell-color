@@ -31,8 +31,7 @@ define(function (require, exports, module) {
 		},
 
 		/** Set SGR state to default */
-		_initDefaultSGR: function () {
-			this._sgr = {}
+		initDefaultSGR: function () {
 			this.consumeCode(0)
 		},
 
@@ -114,22 +113,16 @@ define(function (require, exports, module) {
 		}
 	}
 
-	// color
-	var DEFAULT_FOREGROUND_COLOR = 'white'
-	var DEFAULT_BACKGROUND_COLOR = 'black'
 
 	/** options:
-	 ** defaultForegroundColor: default foreground sgr color
-	 ** defaultBackgroundColor: default background sgr color
+	 ** defaultForegroundColor: required, default foreground sgr color
+	 ** defaultBackgroundColor: required, default background sgr color
 	 */
 	module.exports = function (options) {
-		options = options || {}
-		options.defaultForegroundColor = options.defaultForegroundColor || DEFAULT_FOREGROUND_COLOR
-		options.defaultBackgroundColor = options.defaultBackgroundColor || DEFAULT_BACKGROUND_COLOR
-
 		var obj = Object.create(sgr)
 		obj._options = options
-		obj._initDefaultSGR()
+		obj._sgr = {}
+		obj.initDefaultSGR()
 		return obj
 	}
 })

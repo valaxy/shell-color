@@ -7,6 +7,4 @@ requirejs.config({
 	}
 })
 
-require(['src/sgr-parser-worker'], function (initSGRParserWorker) {
-	initSGRParserWorker()
-})
+require(['src/worker'])

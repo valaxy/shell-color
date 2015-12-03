@@ -9,13 +9,13 @@ define(function (require, exports, module) {
 
 
 	/** Events:
-	 ** lineStart:
-	 ** snippet:
-	 ** lineEnd:
-	 **
+	 **     reset:
+	 **     lineStart:
+	 **     snippet:
+	 **     lineEnd:
 	 */
 	var SGRParser = function (options) {
-		// do nothing
+		this._sgr = SGR(options)
 	}
 
 	Object.assign(SGRParser.prototype, {
@@ -38,6 +38,7 @@ define(function (require, exports, module) {
 
 		// when init
 		_onReset: function () {
+			this.trigger('reset')
 			this.trigger('lineStart')
 		},
 
@@ -90,7 +91,6 @@ define(function (require, exports, module) {
 		/** Reset SGR parameters and stream
 		 */
 		reset: function () {
-			this._sgr = SGR()
 			this._onReset()
 			return this
 		}
@@ -100,7 +100,6 @@ define(function (require, exports, module) {
 	Object.assign(SGRParser, {
 		/**
 		 * Eliminate the ansi escape code in the string.
-		 * @memberof! ShellColor
 		 * @param {string} str - a string with ansi escape code
 		 * @returns {string} returns the text without ansi escape code
 		 */
