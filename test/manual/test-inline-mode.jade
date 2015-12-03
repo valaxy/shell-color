@@ -16,7 +16,7 @@ html
         script(src="../../node_modules/requirejs/require.js")
         script(src="../unit/config.js")
         script.
-            require(['cjs!src/index'], function (ShellColor) {
+            require(['src/index'], function (ShellColor) {
                 var str = [
                     'default color',
                     '\x1b[30mblack color',
@@ -42,10 +42,11 @@ html
                     '\x1b[4munderline\x1b[m',
                     '\x1b[9mdeletion\x1b[m',
                     '\x1b[53moverline\x1b[m'
-                ]
+                ].join('')
 
-                var pre = document.getElementById('everything')
-                ShellColor.toInlineTags(str.join(''), {
+                // no use worker
+                var container = document.getElementById('everything')
+                ShellColor.toInlineTags(str, {
                     colorMap              : {
                         white: '#dddddd',
                         black: '#222222'
@@ -53,7 +54,24 @@ html
                     defaultBackgroundColor: 'white',
                     defaultForegroundColor: 'black'
                 }).forEach(function (tag) {
-                    pre.appendChild(tag)
+                    container.appendChild(tag)
+                })
+                container.appendChild(document.createElement('br'))
+                container.appendChild(document.createElement('br'))
+
+                // use worker
+                var sc = new ShellColor({
+                    useWorker: true,
+                    worker   : {
+                        path    : '../unit/worker-test.js',
+                        callback: function () {
+                            sc.reset().write(str)
+                        }
+                    }
+                })
+
+                sc.on('snippet', function (tag) {
+                    container.appendChild(tag)
                 })
             })
 

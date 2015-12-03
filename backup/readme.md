@@ -11,22 +11,22 @@ npm install --save github:valaxy/shell-color
 ```
 
 # For AMD/RequireJS
+> RequireJS user check [guybedford/cjs](https://github.com/guybedford/cjs)
 
 ```javascript
 requirejs.config({
 	paths: {
 		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter',
-		'shell-color'         : 'node_modules/shell-color/'
+		'cjs'                 : 'node_modules/cjs/cjs',
+		'amd-loader'          : 'node_modules/amd-loader/amd-loader',
+		'shell-color'         : 'node_modules/shell-color/src/'
 	}
 })
 
-var ShellColor = require('shell-color/src/index')
+var ShellColor = require('cjs!shell-color/index')
 ```
 
-# Constructor
-
-Common parameters
-
+# Usage
 ```javascript
 var sc = new ShellColor({	
 	colorMap: {                       // optional
@@ -37,37 +37,8 @@ var sc = new ShellColor({
 	defaultForegroundColor: 'black',  // optional
 	snippetTag:             'span'    // optional
 })
-```
 
-Use Worker
-
-```javascript
-var sc = new ShellColor({	
-	useWorker: true,
-	worker: {
-		path: 'worker.js',
-		callback: function() { ... }
-	}
-})
-
-// in worker.js
-importScripts('require.js')
-
-requirejs.config({
-	paths  : {
-		'shell-color'         : 'node_modules/shell-color/',
-		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter'
-	}
-})
-
-require(['shell-color/src/worker'])
-```
-
-# Usage
-```javascript
-sc.on('reset', function() {
-	console.log('reset')
-})
+var sc = new ShellColor
 
 sc.on('lineStart', function() {
 	var startInfo = document.createElement('b')
@@ -85,7 +56,7 @@ sc.on('lineEnd', function() {
 })
 
 sc.reset()
-  .write('\x1b[30m black\n\x1b[m\x1b[31m red\nend')
+sc.write('\x1b[30m black\n\x1b[m\x1b[31m red\nend')
 ```
 
 ## sc.reset()
@@ -121,6 +92,7 @@ tags.forEach(function (tag) {
 	document.body.appendChild(tag) // <p>...</p>
 })
 ```
+
 
 ## ShellColor.toInlineTags(text)
 ```javascript

@@ -85,72 +85,37 @@ define(function (require) {
 		}, events)
 	})
 
+
+	QUnit.module('ShellColor')
+
+	QUnit.test('toInlineTags()', function (assert) {
+		// escape code
+		var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
+		var $dom = $('<div>')
+		ShellColor.toInlineTags(text).forEach(function (tag) {
+			$dom.append(tag)
+		})
+		assert.equal($dom.text(), 'abcdefghijklmnopqrst')
+
+		// \n
+		text = 'abc\nefg\nxyz'
+		var tagNames = ShellColor.toInlineTags(text).map(function (tag) {
+			return tag.tagName
+		})
+		assert.deepEqual(tagNames, ['SPAN', 'BR', 'SPAN', 'BR', 'SPAN'])
+	})
+
+
+	QUnit.test('toBlockTags()', function (assert) {
+		var text = '\u001b[15;23mabcdefg\n\u001b[mhijklmn\n\u001b[15;24mopqrst\u001b[m'
+		var lines = ShellColor.toBlockTags(text).map(function (blockTag) {
+			return blockTag.innerText
+		})
+		assert.deepEqual(lines, [
+			'abcdefg',
+			'hijklmn',
+			'opqrst'
+		])
+	})
+
 })
-
-
-//QUnit.test('toInlineTags()', function (assert) {
-//	// escape code
-//	var text = '\u001b[15;23mabcdefg\u001b[mhijklmn\u001b[15;24mopqrst\u001b[m'
-//	var $dom = $('<div>')
-//	ShellColor.toInlineTags(text).forEach(function (tag) {
-//		$dom.append(tag)
-//	})
-//	assert.equal($dom.text(), 'abcdefghijklmnopqrst')
-//
-//	// \n
-//	text = 'abc\nefg\nxyz'
-//	var tagNames = ShellColor.toInlineTags(text).map(function (tag) {
-//		return tag.tagName
-//	})
-//	assert.deepEqual(tagNames, ['SPAN', 'BR', 'SPAN', 'BR', 'SPAN'])
-//})
-//
-//
-//QUnit.test('toBlockTags()', function (assert) {
-//	var text = '\u001b[15;23mabcdefg\n\u001b[mhijklmn\n\u001b[15;24mopqrst\u001b[m'
-//	var lines = ShellColor.toBlockTags(text).map(function (blockTag) {
-//		return blockTag.innerText
-//	})
-//	assert.deepEqual(lines, [
-//		'abcdefg',
-//		'hijklmn',
-//		'opqrst'
-//	])
-//})
-
-
-//QUnit.test('convertToHtml(): config color', function (assert) {
-//	var text = '\u001b[15;31m   \u001b[m'
-//	var html = $('<div>').html(sc.convertToHtml(text)).html()
-//	assert.equal(html, '<span style="color:red">   </span>')
-//
-//	var sc2 = new ShellColor({
-//		colors: {
-//			31: 'blue',
-//			32: 'haha'
-//		}
-//	})
-//	html = $('<div>').html(sc2.convertToHtml(text)).html()
-//	assert.equal(html, '<span style="color:blue">   </span>')
-//})
-
-
-//QUnit.test('inline-processor', function (assert) {
-//	assert.deepEqual(collectInlinePorcessor('123\n456\n\n789'), ['123<br>456<br><br>789'])
-//	assert.deepEqual(collectInlinePorcessor('\nabc\n\nefg\n'), ['<br>abc<br><br>efg<br>'])
-//
-//	var sc = new ShellColor
-//	assert.deepEqual(collectInlinePorcessor('abc', sc), ['abc'])
-//	assert.deepEqual(collectInlinePorcessor('\n123\n', sc), ['<br>123<br>'])
-//	assert.deepEqual(collectInlinePorcessor('\nabc', sc), ['<br>abc'])
-//})
-
-//var collectInlinePorcessor = function (text, sc, htmls) {
-//	sc = sc ? sc : new ShellColor
-//	htmls = htmls ? htmls : []
-//
-//	sc.on('snippet', function (tag) {
-//		htmls.push(tag.innerHTML)
-//	}).reset().write(text)
-//	return htmls
-//}
