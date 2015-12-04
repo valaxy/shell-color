@@ -54,6 +54,10 @@ define(function (require, exports, module) {
 				type: 'write',
 				text: text
 			})
+		},
+
+		stop: function () {
+			this._worker.terminate()
 		}
 	}, EventEmitter.prototype)
 

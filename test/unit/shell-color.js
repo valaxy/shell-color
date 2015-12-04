@@ -63,6 +63,21 @@ define(function (require) {
 
 	QUnit.module('ShellColor:Worker')
 
+	QUnit.test('stopWorker()', function (assert) {
+		var done = assert.async()
+		var sc = createShellColor({
+			useWorker: true,
+			worker   : {
+				path    : './worker-test.js',
+				callback: function () {
+					sc.stopWorker()
+					assert.ok(true)
+					done()
+				}
+			}
+		})
+	})
+
 	QUnit.test('eventStream', function (assert) {
 		var done = assert.async()
 		var events = []

@@ -120,8 +120,15 @@ define(function (require, exports, module) {
 		write: function (text) {
 			this._parser.write(text)
 			return this
-		}
+		},
 
+		stopWorker: function () {
+			if (this._parser instanceof SGRParserPort) {
+				this._parser.stop()
+			} else {
+				throw new Error('not a worker mode')
+			}
+		}
 	}, EventEmitter.prototype)
 
 
