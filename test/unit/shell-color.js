@@ -133,4 +133,7 @@ define(function (require) {
 		])
 	})
 
+	QUnit.test('strip()', function (assert) {
+		assert.equal(ShellColor.strip('abc'), 'abc')
+	})
 })

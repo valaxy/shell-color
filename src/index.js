@@ -144,7 +144,7 @@ define(function (require, exports, module) {
 		 * @returns {string} returns the text without ansi escape code
 		 */
 		strip: function (str) {
-			return str.replace(ESCAPE_CODE_REG_MUL, '')
+			return SGRParser.strip(str)
 		},
 
 		/**
