@@ -72,16 +72,16 @@ sc.on('reset', function() {
 sc.on('lineStart', function() {
 	var startInfo = document.createElement('b')
 	startInfo.innerText = 'start:'
-	document.body.append(startInfo)
+	document.body.appendChild(startInfo)
 })
 
 sc.on('snippet', function(tag) {
-	document.body.append(tag)
+	document.body.appendChild(tag)
 })
 
 sc.on('lineEnd', function() {
-	var br = document.body.append('br')
-	document.body.append(br)
+	var br = document.body.appendChild('br')
+	document.body.appendChild(br)
 })
 
 sc.reset()
