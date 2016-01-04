@@ -80,7 +80,7 @@ sc.on('snippet', function(tag) {
 })
 
 sc.on('lineEnd', function() {
-	var br = document.body.appendChild('br')
+	var br = document.createElement('br')
 	document.body.appendChild(br)
 })
 
