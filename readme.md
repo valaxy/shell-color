@@ -7,7 +7,7 @@ Javascript parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_co
 
 # Install
 ```sh
-npm install --save github:valaxy/shell-color
+npm install --save shell-color
 ```
 
 # Constructor
