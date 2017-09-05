@@ -10,28 +10,16 @@ Javascript parse [ANSI escape code](https://en.wikipedia.org/wiki/ANSI_escape_co
 npm install --save github:valaxy/shell-color
 ```
 
-# For AMD/RequireJS
-
-```javascript
-requirejs.config({
-	paths: {
-		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter',
-		'shell-color'         : 'node_modules/shell-color/'
-	}
-})
-
-var ShellColor = require('shell-color/src/index')
-```
-
 # Constructor
-
 Common parameters
 
 ```javascript
-var sc = new ShellColor({	
+const ShellColor = require('shell-color')
+
+var sc = new ShellColor({
 	colorMap: {                       // optional
 		white: '#cccccc',
-    	black: '#333333'	
+    	black: '#333333'
 	},
 	defaultBackgroundColor: 'white',  // optional
 	defaultForegroundColor: 'black',  // optional
@@ -42,25 +30,13 @@ var sc = new ShellColor({
 Use Worker
 
 ```javascript
-var sc = new ShellColor({	
+var sc = new ShellColor({
 	useWorker: true,
 	worker: {
-		path: 'worker.js',
+		path: 'node_modules/shell-color/dest/worker.js',
 		callback: function() { ... }
 	}
 })
-
-// in worker.js
-importScripts('require.js')
-
-requirejs.config({
-	paths  : {
-		'shell-color'         : 'node_modules/shell-color/',
-		'wolfy87-eventemitter': 'node_modules/wolfy87-eventemitter/EventEmitter'
-	}
-})
-
-require(['shell-color/src/worker'])
 ```
 
 # Usage
@@ -132,6 +108,7 @@ tags.forEach(function (tag) {
 
 # ChangeLog
 - 1.1.0 Add web worker support
+- 2.0.0 Build change to webpack
 
 # Reference
 - https://en.wikipedia.org/wiki/ANSI_escape_code
